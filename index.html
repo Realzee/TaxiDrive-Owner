@@ -214,6 +214,15 @@
             background-color: var(--success);
             color: var(--white);
         }
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+        .item-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -439,7 +448,7 @@
         <div class="modal" id="fleet-overview-modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="modal-title">Fleet Overview</div>
+                    <div class="modal-title">Fleet Management</div>
                     <div class="modal-close">&times;</div>
                 </div>
                 <div class="card" id="fleet-list"></div>
@@ -462,6 +471,23 @@
                     <input type="text" class="form-input" id="vehicle-reg" placeholder="Enter registration number">
                 </div>
                 <button class="btn btn-primary" id="confirm-add-vehicle">Add Vehicle</button>
+            </div>
+        </div>
+        <div class="modal" id="edit-vehicle-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Edit Vehicle</div>
+                    <div class="modal-close">&times;</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Vehicle Model</label>
+                    <input type="text" class="form-input" id="edit-vehicle-model" placeholder="Enter vehicle model">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Registration Number</label>
+                    <input type="text" class="form-input" id="edit-vehicle-reg" placeholder="Enter registration number">
+                </div>
+                <button class="btn btn-primary" id="confirm-edit-vehicle">Update Vehicle</button>
             </div>
         </div>
         <div class="modal" id="maintain-vehicle-modal">
@@ -764,6 +790,10 @@ const firebaseConfig = {
                                 <p><strong>Total Earnings:</strong> R ${vehicle.totalEarnings ? vehicle.totalEarnings.toFixed(2) : '0.00'}</p>
                             </div>
                         </div>
+                        <div class="item-actions">
+                            <button class="btn btn-secondary edit-vehicle-btn" data-vehicle-index="${index}">Edit</button>
+                            <button class="btn btn-danger remove-vehicle-btn" data-vehicle-index="${index}">Remove</button>
+                        </div>
                     </div>`;
                 fleetList.innerHTML += vehicleHtml;
                 fleetVehicles.innerHTML += vehicleHtml;
@@ -780,30 +810,71 @@ const firebaseConfig = {
                             <p><strong>Total Earnings:</strong> R ${vehicle.totalEarnings ? vehicle.totalEarnings.toFixed(2) : '0.00'}</p>
                         </div>
                     </div>
+                    <div class="item-actions">
+                        <button class="btn btn-secondary edit-vehicle-btn" data-vehicle-index="${index}">Edit</button>
+                        <button class="btn btn-danger remove-vehicle-btn" data-vehicle-index="${index}">Remove</button>
+                    </div>
                 </div>`;
             fleetList.innerHTML += vehicleHtml;
             fleetVehicles.innerHTML += vehicleHtml;
         }
-            setTimeout(() => {
-    document.querySelectorAll('.remove-vehicle-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const vehicleId = btn.getAttribute('data-vehicle-index');
-            if (confirm('Are you sure you want to remove this vehicle from your fleet?')) {
-                db.ref(`users/owners/${userId}/vehicles/${vehicleId}`).remove()
-                .then(() => {
-                    updateFleetOverview();
-                    alert('Vehicle removed successfully!');
-                })
-                .catch(error => {
-                    alert('Error removing vehicle: ' + error.message);
-                });
-            }
-        });
-    });
-}, 100); // Wait for DOM update     
     });
     updateMaintenanceDropdown();
-    
+
+    // Add event listeners for edit and remove buttons
+    setTimeout(() => {
+        document.querySelectorAll('.edit-vehicle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const vehicleIndex = btn.getAttribute('data-vehicle-index');
+                db.ref(`users/owners/${userId}/vehicles/${vehicleIndex}`).once('value', snapshot => {
+                    const vehicle = snapshot.val();
+                    if (vehicle) {
+                        document.getElementById('edit-vehicle-model').value = vehicle.model || '';
+                        document.getElementById('edit-vehicle-reg').value = vehicle.reg || '';
+                        document.getElementById('confirm-edit-vehicle').setAttribute('data-vehicle-index', vehicleIndex);
+                        openModal('edit-vehicle-modal');
+                    }
+                });
+            });
+        });
+
+        document.getElementById('confirm-edit-vehicle').addEventListener('click', () => {
+            const vehicleIndex = document.getElementById('confirm-edit-vehicle').getAttribute('data-vehicle-index');
+            const model = document.getElementById('edit-vehicle-model').value;
+            const reg = document.getElementById('edit-vehicle-reg').value;
+            if (model && reg && vehicleIndex) {
+                db.ref(`users/owners/${userId}/vehicles/${vehicleIndex}`).update({
+                    model: model,
+                    reg: reg
+                }).then(() => {
+                    updateFleetOverview();
+                    closeModal('edit-vehicle-modal');
+                    alert('Vehicle updated successfully!');
+                }).catch(error => {
+                    alert('Error updating vehicle: ' + error.message);
+                });
+            } else {
+                alert('Please fill in all fields');
+            }
+        });
+
+        document.querySelectorAll('.remove-vehicle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const vehicleId = btn.getAttribute('data-vehicle-index');
+                if (confirm('Are you sure you want to remove this vehicle from your fleet?')) {
+                    db.ref(`users/owners/${userId}/vehicles/${vehicleId}`).remove()
+                    .then(() => {
+                        updateFleetOverview();
+                        alert('Vehicle removed successfully!');
+                    })
+                    .catch(error => {
+                        alert('Error removing vehicle: ' + error.message);
+                    });
+                }
+            });
+        });
+    }, 200); // Wait for DOM update
+
     let fleetTotalEarnings = 0;
 Object.entries(vehicles).forEach(([index, vehicle]) => {
     let vehicleTotal = 0;
@@ -847,8 +918,11 @@ Object.entries(vehicles).forEach(([index, vehicle]) => {
             // Fetch live data from driver node
             db.ref(`users/drivers/${driver.driverId}`).once('value', driverSnap => {
                 const driverData = driverSnap.val() || {};
-                const status = driverData.onDuty ? 'On Duty' : 'Off Duty';
-                const statusColor = driverData.onDuty ? 'var(--success)' : 'var(--danger)';
+                let status = driverData.onDuty ? 'On Duty' : 'Off Duty';
+                if (driverData.onDuty && !driver.vehicleId) {
+                    status = 'Off Duty (No Vehicle)';
+                }
+                const statusColor = driverData.onDuty && driver.vehicleId ? 'var(--success)' : 'var(--danger)';
                 const route = driverData.currentRoute || 'N/A';
                 // Calculate today's earnings from driver trips
                 let earningsToday = 0;

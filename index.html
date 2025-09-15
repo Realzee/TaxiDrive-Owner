@@ -131,6 +131,9 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .action-btn:hover {
             transform: translateY(-3px);
@@ -365,6 +368,7 @@
                 <i class="fas fa-bell"></i>
                 <i class="fas fa-user"></i>
                 <button class="login-logout-btn" id="login-logout-btn">Login</button>
+                <div id="user-name" style="font-size: 12px; color: var(--white); text-align: center; margin-top: 5px;"></div>
             </div>
         </header>
         <div class="app-content" id="owner-app">
@@ -374,10 +378,6 @@
             </div>
             <div class="section-title">Quick Actions</div>
             <div class="quick-actions">
-                <div class="action-btn" id="earnings-history-btn">
-                    <i class="fas fa-history"></i>
-                    <span>Earnings</span>
-                </div>
                 <div class="action-btn" id="fleet-overview-btn">
                     <i class="fas fa-shuttle-van"></i>
                     <span>Fleet</span>
@@ -385,6 +385,10 @@
                 <div class="action-btn" id="driver-management-btn">
                     <i class="fas fa-users"></i>
                     <span>Drivers</span>
+                </div>
+                <div class="action-btn" id="earnings-history-btn">
+                    <i class="fas fa-history"></i>
+                    <span>Earnings</span>
                 </div>
                 <div class="action-btn" id="withdraw-btn">
                     <i class="fas fa-money-bill-wave"></i>
@@ -593,6 +597,17 @@
         <button class="btn btn-primary" id="confirm-withdraw">Withdraw</button>
     </div>
         </div>
+        <div class="modal" id="logout-confirm-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Confirm Logout</div>
+                    <div class="modal-close">&times;</div>
+                </div>
+                <p>Are you sure you want to logout?</p>
+                <button class="btn btn-secondary" id="cancel-logout">Cancel</button>
+                <button class="btn btn-primary" id="confirm-logout">Logout</button>
+            </div>
+        </div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -643,15 +658,44 @@ const firebaseConfig = {
 
     db.ref(`users/owners/${userId}/earnings`).once('value', snapshot => {
         const earnings = snapshot.val() || [];
-        Object.values(earnings).forEach(earning => {
+        const earningsArray = Object.values(earnings).filter(earning => {
             const earningDate = new Date(earning.time);
-            if (earningDate >= startDate) {
-                total += earning.amount;
-                // Track by driver
-                const driver = earning.driver || 'Unknown';
-                if (!driverTotals[driver]) driverTotals[driver] = 0;
-                driverTotals[driver] += earning.amount;
+            return earningDate >= startDate;
+        });
+        earningsArray.forEach(earning => {
+            total += earning.amount;
+            // Track by driver
+            const driver = earning.driver || 'Unknown';
+            if (!driverTotals[driver]) driverTotals[driver] = 0;
+            driverTotals[driver] += earning.amount;
+        });
 
+        // Sort earnings by time descending for recent earnings
+        const sortedEarnings = earningsArray.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+        // Build HTML for earnings list (all)
+        sortedEarnings.forEach(earning => {
+            const driver = earning.driver || 'Unknown';
+            const earningHtml = `
+                <div class="list-item">
+                    <div class="item-info">
+                        <div class="item-icon"><i class="fas fa-money-bill"></i></div>
+                        <div class="item-details">
+                            <h4>${earning.vehicle}</h4>
+                            <p>${earning.time}</p>
+                            <p><strong>Driver:</strong> ${driver}</p>
+                        </div>
+                    </div>
+                    <div class="item-value">R ${earning.amount.toFixed(2)}</div>
+                </div>`;
+            earningsList.innerHTML += earningHtml;
+        });
+
+        // For recent earnings, limit to 5 latest
+        if (period === 'daily') {
+            const recentSorted = sortedEarnings.slice(0, 5);
+            recentSorted.forEach(earning => {
+                const driver = earning.driver || 'Unknown';
                 const earningHtml = `
                     <div class="list-item">
                         <div class="item-info">
@@ -664,10 +708,9 @@ const firebaseConfig = {
                         </div>
                         <div class="item-value">R ${earning.amount.toFixed(2)}</div>
                     </div>`;
-                earningsList.innerHTML += earningHtml;
-                if (period === 'daily') recentEarnings.innerHTML += earningHtml;
-            }
-        });
+                recentEarnings.innerHTML += earningHtml;
+            });
+        }
 
         // Show driver totals
         let driverTotalsHtml = '';
@@ -1126,6 +1169,7 @@ document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
                     const data = snapshot.val();
                     walletBalance = data?.walletBalance || 0;
                     document.getElementById('wallet-balance').textContent = `R ${Number(walletBalance).toFixed(2)}`;
+                    document.getElementById('user-name').textContent = data?.name || user.displayName || 'User';
                     if (!data) {
                         db.ref(`users/owners/${userId}`).set({
                             email: user.email,
@@ -1145,19 +1189,29 @@ document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
                 walletBalance = 0;
                 document.getElementById('wallet-balance').textContent = 'R 0.00';
                 document.getElementById('login-logout-btn').textContent = 'Login';
+                document.getElementById('user-name').textContent = '';
             }
         });
 
         document.getElementById('login-logout-btn').addEventListener('click', () => {
             if (isLoggedIn) {
-                auth.signOut().then(() => {
-                    alert('Logged out successfully!');
-                }).catch(error => {
-                    alert('Error logging out: ' + error.message);
-                });
+                openModal('logout-confirm-modal');
             } else {
                 openModal('login-modal');
             }
+        });
+
+        document.getElementById('confirm-logout').addEventListener('click', () => {
+            auth.signOut().then(() => {
+                closeModal('logout-confirm-modal');
+                alert('Logged out successfully!');
+            }).catch(error => {
+                alert('Error logging out: ' + error.message);
+            });
+        });
+
+        document.getElementById('cancel-logout').addEventListener('click', () => {
+            closeModal('logout-confirm-modal');
         });
 
         document.getElementById('signup-btn').addEventListener('click', () => {

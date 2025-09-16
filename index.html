@@ -579,8 +579,41 @@
                     <div class="modal-close">&times;</div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Driver Email</label>
-                    <input type="email" class="form-input" id="driver-email" placeholder="Enter driver email">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" id="driver-name" placeholder="Enter driver name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Surname</label>
+                    <input type="text" class="form-input" id="driver-surname" placeholder="Enter driver surname">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cell Number</label>
+                    <input type="tel" class="form-input" id="driver-cell" placeholder="Enter cell number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">License Type</label>
+                    <select class="form-input" id="driver-license-type">
+                        <option value="">Select License Type</option>
+                        <option value="A">A</option>
+                        <option value="A1">A1</option>
+                        <option value="C">C</option>
+                        <option value="C1">C1</option>
+                        <option value="EB">EB</option>
+                        <option value="EC1">EC1</option>
+                        <option value="EC">EC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">License Expiry Date</label>
+                    <input type="date" class="form-input" id="driver-license-expiry">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="driver-username" placeholder="Enter username (email)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="driver-password" placeholder="Enter password">
                 </div>
                 <button class="btn btn-primary" id="confirm-add-driver">Add Driver</button>
             </div>
@@ -863,7 +896,7 @@
                     const driverName = vehicle.driverId ? driverNames[vehicle.driverId] || 'Unassigned' : 'Unassigned';
                     const totalEarnings = earningsByVehicle[vehicle.reg] || 0;
 
-                    const vehicleHtml = `
+                const vehicleHtml = `
                         <div class="list-item" data-vehicle-index="${index}">
                             <div class="item-info">
                                 <div class="item-icon"><i class="fas fa-shuttle-van"></i></div>
@@ -874,6 +907,10 @@
                                     <p style="color:${statusColor};font-weight:600;">${status}</p>
                                     <p><strong>Total Earnings:</strong> R ${totalEarnings.toFixed(2)}</p>
                                 </div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn btn-secondary edit-vehicle-btn" data-vehicle-index="${index}">Edit</button>
+                                <button class="btn btn-danger remove-vehicle-btn" data-vehicle-index="${index}">Remove</button>
                             </div>
                         </div>`;
                     fleetList.innerHTML += vehicleHtml;
@@ -1278,38 +1315,47 @@
         });
 
         document.getElementById('confirm-add-driver').addEventListener('click', () => {
-            const email = document.getElementById('driver-email').value;
-            if (email) {
-                db.ref('users/drivers').orderByChild('email').equalTo(email).once('value', snapshot => {
-                    if (!snapshot.exists()) {
-                        alert('Driver not found. Please make sure the driver has signed up.');
-                        return;
-                    }
-                    const driverId = Object.keys(snapshot.val())[0];
-                    const driverData = snapshot.val()[driverId];
-                    if (!driverData.name) {
-                        alert('Driver record found, but missing name. Please check driver registration.');
-                        return;
-                    }
-                    db.ref(`users/owners/${userId}/drivers`).push({
-                        driverId: driverId,
-                        name: driverData.name,
-                        email: email,
+            const name = document.getElementById('driver-name').value;
+            const surname = document.getElementById('driver-surname').value;
+            const cell = document.getElementById('driver-cell').value;
+            const licenseType = document.getElementById('driver-license-type').value;
+            const licenseExpiry = document.getElementById('driver-license-expiry').value;
+            const username = document.getElementById('driver-username').value;
+            const password = document.getElementById('driver-password').value;
+            if (name && surname && cell && licenseType && licenseExpiry && username && password) {
+                auth.createUserWithEmailAndPassword(username, password).then(userCredential => {
+                    const driverId = userCredential.user.uid;
+                    db.ref(`users/drivers/${driverId}`).set({
+                        name: name + ' ' + surname,
+                        surname: surname,
+                        cell: cell,
+                        licenseType: licenseType,
+                        licenseExpiry: licenseExpiry,
+                        email: username,
                         onDuty: false,
-                        behavior: []
+                        currentRoute: '',
+                        trips: [],
+                        behavior: [],
+                        vehicle: { ownerId: userId }
                     }).then(() => {
-                        db.ref(`users/drivers/${driverId}/vehicle`).update({
-                            ownerId: userId
+                        db.ref(`users/owners/${userId}/drivers`).push({
+                            driverId: driverId,
+                            name: name + ' ' + surname,
+                            email: username,
+                            onDuty: false,
+                            behavior: []
                         });
                         updateDriverManagement();
                         closeModal('add-driver-modal');
                         alert('Driver added successfully!');
                     }).catch(error => {
-                        alert('Error adding driver: ' + error.message);
+                        alert('Error storing driver data: ' + error.message);
                     });
+                }).catch(error => {
+                    alert('Error creating driver account: ' + error.message);
                 });
             } else {
-                alert('Please enter driver email');
+                alert('Please fill in all fields');
             }
         });
 

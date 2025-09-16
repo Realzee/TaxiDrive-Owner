@@ -1497,18 +1497,20 @@
         });
 
         // Authentication
-        auth.onAuthStateChanged(user => {
-  console.log('Auth state changed:', user ? user.uid : 'No user');
+       auth.onAuthStateChanged(user => {
+  console.log('Auth state changed:', user ? `UID: ${user.uid}, Email: ${user.email}` : 'No user');
   if (user) {
     isLoggedIn = true;
     userId = user.uid;
     console.log('Set userId:', userId);
     db.ref(`users/owners/${userId}`).once('value', snapshot => {
       const data = snapshot.val();
+      console.log('Owner data:', data);
       walletBalance = data?.walletBalance || 0;
       document.getElementById('wallet-balance').textContent = `R ${Number(walletBalance).toFixed(2)}`;
       document.getElementById('user-name').textContent = data?.name || user.displayName || 'User';
       if (!data) {
+        console.log('Creating new owner record for UID:', userId);
         db.ref(`users/owners/${userId}`).set({
           email: user.email,
           name: document.getElementById('signup-name').value || 'Owner',
@@ -1520,6 +1522,8 @@
       updateEarningsHistory();
       updateFleetOverview();
       updateDriverManagement();
+    }).catch(error => {
+      console.error('Error fetching owner data:', error.message);
     });
   } else {
     isLoggedIn = false;

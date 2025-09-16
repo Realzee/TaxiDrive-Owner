@@ -374,17 +374,17 @@
             </div>
             <div class="section-title">Quick Actions</div>
             <div class="quick-actions">
-                <div class="action-btn" id="earnings-history-btn">
-                    <i class="fas fa-history"></i>
-                    <span>Earnings</span>
-                </div>
                 <div class="action-btn" id="fleet-overview-btn">
                     <i class="fas fa-shuttle-van"></i>
                     <span>Fleet</span>
                 </div>
                 <div class="action-btn" id="driver-management-btn">
-                    <i class="fas fa-users"></i>
+                    <i class="fa-drivers-license"></i>
                     <span>Drivers</span>
+                </div>
+                <div class="action-btn" id="earnings-history-btn">
+                    <i class="fas fa-wallet"></i>
+                    <span>Earnings</span>
                 </div>
                 <div class="action-btn" id="withdraw-btn">
                     <i class="fas fa-money-bill-wave"></i>
@@ -487,6 +487,17 @@
                     <label class="form-label">Description</label>
                     <textarea class="form-input" id="maintenance-description" placeholder="Enter description"></textarea>
                 </div>
+                <div class="modal-content">
+        <h2>Maintain Vehicle</h2>
+        <label for="vehicle-status-select">Vehicle Status:</label>
+        <select id="vehicle-status-select">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="maintenance">Maintenance</option>
+        </select>
+        <button id="maintain-vehicle-confirm" class="btn btn-primary" data-vehicle-id="">Confirm</button>
+        <button class="btn btn-secondary" onclick="closeModal('maintain-vehicle-modal')">Cancel</button>
+    </div>
                 <button class="btn btn-primary" id="confirm-maintenance">Log Maintenance</button>
             </div>
         </div>
@@ -810,42 +821,78 @@ Object.entries(vehicles).forEach(([index, vehicle]) => {
                 const driverData = driverSnap.val() || {};
                 console.log(`Driver ${driver.driverId} data:`, driverData);
                 let status = driverData.onDuty ? 'On Duty' : 'Off Duty';
-                if (driverData.onDuty && !driver.vehicleId) {
-                    status = 'Off Duty (No Vehicle)';
-                }
-                const statusColor = driverData.onDuty && driver.vehicleId ? 'var(--success)' : 'var(--danger)';
-                const route = driverData.currentRoute || 'N/A';
-                let earningsToday = 0;
-                const today = new Date().toISOString().slice(0, 10);
-                if (driverData.trips) {
-                    Object.values(driverData.trips).forEach(trip => {
-                        if (trip.timestamp && trip.timestamp.slice(0, 10) === today) {
-                            earningsToday += Number(trip.amount) || 0;
+                let vehicleStatus = 'N/A';
+                const vehicleId = driver.vehicleId;
+                if (vehicleId) {
+                    db.ref(`users/owners/${userId}/vehicles/${vehicleId}`).once('value', vehicleSnap => {
+                        const vehicleData = vehicleSnap.val() || {};
+                        vehicleStatus = vehicleData.vehicleStatus || 'inactive';
+                        const displayStatus = vehicleStatus === 'maintenance' ? 'Maintenance' : 
+                                             vehicleStatus === 'active' && driverData.onDuty ? 'Active' : 
+                                             vehicleStatus === 'active' ? 'Inactive' : vehicleStatus;
+                        const statusColor = vehicleStatus === 'maintenance' ? 'var(--warning)' : 
+                                           vehicleStatus === 'active' && driverData.onDuty ? 'var(--success)' : 
+                                           'var(--danger)';
+                        const route = driverData.currentRoute || 'N/A';
+                        let earningsToday = 0;
+                        const today = new Date().toISOString().slice(0, 10);
+                        if (driverData.trips) {
+                            Object.values(driverData.trips).forEach(trip => {
+                                if (trip.timestamp && trip.timestamp.slice(0, 10) === today) {
+                                    earningsToday += Number(trip.amount) || 0;
+                                }
+                            });
                         }
+                        const driverHtml = `
+                            <div class="list-item" data-driver-index="${index}" data-vehicle-id="${vehicleId || ''}">
+                                <div class="item-info">
+                                    <div class="item-icon"><i class="fas fa-user"></i></div>
+                                    <div class="item-details">
+                                        <h4>${driverData.name || driver.name || 'Unknown'}</h4>
+                                        <p>${driverData.email || driver.email || 'N/A'}</p>
+                                        <p style="color:${statusColor};font-weight:600;">Vehicle Status: ${displayStatus}</p>
+                                        <p><strong>Current Route:</strong> ${route}</p>
+                                        <p><strong>Today's Earnings:</strong> R ${earningsToday.toFixed(2)}</p>
+                                    </div>
+                                </div>
+                                <div class="item-actions">
+                                    <button class="btn btn-secondary edit-driver-btn" data-driver-index="${index}">Edit</button>
+                                    <button class="btn btn-danger remove-driver-btn" data-driver-index="${index}">Remove</button>
+                                    <button class="btn btn-info maintain-vehicle-btn" data-vehicle-id="${vehicleId || ''}" data-driver-index="${index}">Maintain Vehicle</button>
+                                </div>
+                            </div>`;
+                        driverList.innerHTML += driverHtml;
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = driverData.name || driver.name || 'Unknown';
+                        driverSelect.appendChild(option);
+                    }).catch(error => {
+                        console.error(`Error fetching vehicle ${vehicleId}:`, error.message);
                     });
-                }
-                const driverHtml = `
-                    <div class="list-item" data-driver-index="${index}">
-                        <div class="item-info">
-                            <div class="item-icon"><i class="fas fa-user"></i></div>
-                            <div class="item-details">
-                                <h4>${driverData.name || driver.name || 'Unknown'}</h4>
-                                <p>${driverData.email || driver.email || 'N/A'}</p>
-                                <p style="color:${statusColor};font-weight:600;">${status}</p>
-                                <p><strong>Current Route:</strong> ${route}</p>
-                                <p><strong>Today's Earnings:</strong> R ${earningsToday.toFixed(2)}</p>
+                } else {
+                    const driverHtml = `
+                        <div class="list-item" data-driver-index="${index}" data-vehicle-id="">
+                            <div class="item-info">
+                                <div class="item-icon"><i class="fas fa-user"></i></div>
+                                <div class="item-details">
+                                    <h4>${driverData.name || driver.name || 'Unknown'}</h4>
+                                    <p>${driverData.email || driver.email || 'N/A'}</p>
+                                    <p style="color:var(--danger);font-weight:600;">Vehicle Status: No Vehicle Assigned</p>
+                                    <p><strong>Current Route:</strong> ${route}</p>
+                                    <p><strong>Today's Earnings:</strong> R ${earningsToday.toFixed(2)}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn btn-secondary edit-driver-btn" data-driver-index="${index}">Edit</button>
-                            <button class="btn btn-danger remove-driver-btn" data-driver-index="${index}">Remove</button>
-                        </div>
-                    </div>`;
-                driverList.innerHTML += driverHtml;
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = driverData.name || driver.name || 'Unknown';
-                driverSelect.appendChild(option);
+                            <div class="item-actions">
+                                <button class="btn btn-secondary edit-driver-btn" data-driver-index="${index}">Edit</button>
+                                <button class="btn btn-danger remove-driver-btn" data-driver-index="${index}">Remove</button>
+                            </div>
+                        </div>`;
+                    driverList.innerHTML += driverHtml;
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = driverData.name || driver.name || 'Unknown';
+                    driverSelect.appendChild(option);
+                }
             }, error => {
                 console.error(`Error fetching driver ${driver.driverId}:`, error.message);
             });
@@ -939,6 +986,46 @@ document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
             alert('Invalid amount or insufficient funds');
         }
     });
+
+    // Add event listener for maintain vehicle button
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('maintain-vehicle-btn')) {
+        const vehicleId = e.target.getAttribute('data-vehicle-id');
+        const driverIndex = e.target.getAttribute('data-driver-index');
+        if (vehicleId) {
+            openModal('maintain-vehicle-modal');
+            db.ref(`users/owners/${userId}/vehicles/${vehicleId}`).once('value', snapshot => {
+                const vehicleData = snapshot.val() || {};
+                const currentStatus = vehicleData.vehicleStatus || 'inactive';
+                document.getElementById('vehicle-status-select').value = currentStatus;
+                document.getElementById('maintain-vehicle-confirm').setAttribute('data-vehicle-id', vehicleId);
+            }).catch(error => {
+                console.error('Error fetching vehicle data:', error.message);
+            });
+        } else {
+            alert('No vehicle assigned to this driver');
+        }
+    }
+});
+
+// Confirm maintain vehicle update
+document.getElementById('maintain-vehicle-confirm').addEventListener('click', () => {
+    const vehicleId = document.getElementById('maintain-vehicle-confirm').getAttribute('data-vehicle-id');
+    const newStatus = document.getElementById('vehicle-status-select').value;
+    if (vehicleId && newStatus) {
+        db.ref(`users/owners/${userId}/vehicles/${vehicleId}`).update({
+            vehicleStatus: newStatus
+        }).then(() => {
+            console.log(`Vehicle ${vehicleId} status updated to ${newStatus}`);
+            closeModal('maintain-vehicle-modal');
+            updateDriverManagement();
+            alert('Vehicle status updated successfully!');
+        }).catch(error => {
+            console.error('Error updating vehicle status:', error.message);
+            alert('Error updating vehicle status: ' + error.message);
+        });
+    }
+});
     // ...add other event listeners here...
 });
         // Modal functionality

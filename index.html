@@ -324,47 +324,39 @@
             margin-left: 15px;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script type="text/javascript">
         var gk_isXlsx = false;
         var gk_xlsxFileLookup = {};
         var gk_fileData = {};
         function filledCell(cell) {
-          return cell !== '' && cell != null;
+            return cell !== '' && cell != null;
         }
         function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
+            if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+                try {
+                    var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                    var firstSheetName = workbook.SheetNames[0];
+                    var worksheet = workbook.Sheets[firstSheetName];
+                    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                    var filteredData = jsonData.filter(row => row.some(filledCell));
+                    var headerRowIndex = filteredData.findIndex((row, index) =>
+                      row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                    );
+                    if (headerRowIndex === -1 || headerRowIndex > 25) {
+                      headerRowIndex = 0;
+                    }
+                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                    csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                    return csv;
+                } catch (e) {
+                    console.error(e);
+                    return "";
                 }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
             }
+            return gk_fileData[filename] || "";
         }
-        return gk_fileData[filename] || "";
-        }
-        
-        </script>
+    </script>
 </head>
 <body>
     <div class="container">
@@ -463,12 +455,36 @@
                     <div class="modal-close">&times;</div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Vehicle Model</label>
+                    <label class="form-label">Make</label>
+                    <input type="text" class="form-input" id="vehicle-make" placeholder="Enter vehicle make">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Model</label>
                     <input type="text" class="form-input" id="vehicle-model" placeholder="Enter vehicle model">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Year</label>
+                    <input type="number" class="form-input" id="vehicle-year" placeholder="Enter year" min="1900" max="2100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Color</label>
+                    <input type="text" class="form-input" id="vehicle-color" placeholder="Enter color">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">VIN Number</label>
+                    <input type="text" class="form-input" id="vehicle-vin" placeholder="Enter VIN number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Engine Number</label>
+                    <input type="text" class="form-input" id="vehicle-engine" placeholder="Enter engine number">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Registration Number</label>
                     <input type="text" class="form-input" id="vehicle-reg" placeholder="Enter registration number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">License Expiry Date</label>
+                    <input type="date" class="form-input" id="vehicle-license-expiry">
                 </div>
                 <button class="btn btn-primary" id="confirm-add-vehicle">Add Vehicle</button>
             </div>
@@ -480,12 +496,36 @@
                     <div class="modal-close">&times;</div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Vehicle Model</label>
+                    <label class="form-label">Make</label>
+                    <input type="text" class="form-input" id="edit-vehicle-make" placeholder="Enter vehicle make">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Model</label>
                     <input type="text" class="form-input" id="edit-vehicle-model" placeholder="Enter vehicle model">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Year</label>
+                    <input type="number" class="form-input" id="edit-vehicle-year" placeholder="Enter year" min="1900" max="2100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Color</label>
+                    <input type="text" class="form-input" id="edit-vehicle-color" placeholder="Enter color">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">VIN Number</label>
+                    <input type="text" class="form-input" id="edit-vehicle-vin" placeholder="Enter VIN number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Engine Number</label>
+                    <input type="text" class="form-input" id="edit-vehicle-engine" placeholder="Enter engine number">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Registration Number</label>
                     <input type="text" class="form-input" id="edit-vehicle-reg" placeholder="Enter registration number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">License Expiry Date</label>
+                    <input type="date" class="form-input" id="edit-vehicle-license-expiry">
                 </div>
                 <button class="btn btn-primary" id="confirm-edit-vehicle">Update Vehicle</button>
             </div>
@@ -529,6 +569,7 @@
                 <div class="card" id="driver-list"></div>
                 <button class="btn btn-primary" id="add-driver-btn">Add Driver</button>
                 <button class="btn btn-primary" id="manage-driver-btn">Manage Driver</button>
+                <button class="btn btn-primary" id="allocate-vehicle-btn">Allocate Vehicle</button>
             </div>
         </div>
         <div class="modal" id="add-driver-modal">
@@ -550,26 +591,6 @@
                     <div class="modal-title">Manage Driver</div>
                     <div class="modal-close">&times;</div>
                 </div>
-
-        <div class="modal" id="allocate-vehicle-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <div class="modal-title">Allocate Vehicle to Driver</div>
-            <div class="modal-close">&times;</div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Select Vehicle</label>
-            <select class="form-input" id="allocate-vehicle-select"></select>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Select Driver</label>
-            <select class="form-input" id="allocate-driver-select"></select>
-        </div>
-        <button class="btn btn-primary" id="confirm-allocate-vehicle">Allocate</button>
-        </div>
-    </div>
-
-    <button class="btn btn-primary" id="allocate-vehicle-btn">Allocate Vehicle</button>
                 <div class="form-group">
                     <label class="form-label">Driver</label>
                     <select class="form-input" id="manage-driver-select"></select>
@@ -579,7 +600,42 @@
                     <label class="form-label">Notes</label>
                     <textarea class="form-input" id="driver-notes" placeholder="Enter notes"></textarea>
                 </div>
+                <button class="btn btn-primary" id="allocate-vehicle-btn">Allocate Vehicle</button>
                 <button class="btn btn-primary" id="save-driver-notes">Save Notes</button>
+            </div>
+        </div>
+        <div class="modal" id="allocate-vehicle-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Allocate Vehicle to Driver</div>
+                    <div class="modal-close">&times;</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Select Vehicle</label>
+                    <select class="form-input" id="allocate-vehicle-select"></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Select Driver</label>
+                    <select class="form-input" id="allocate-driver-select"></select>
+                </div>
+                <button class="btn btn-primary" id="confirm-allocate-vehicle">Allocate</button>
+            </div>
+        </div>
+        <div class="modal" id="edit-driver-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Edit Driver</div>
+                    <div class="modal-close">&times;</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" id="edit-driver-name" placeholder="Enter driver name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="edit-driver-email" placeholder="Enter driver email" readonly>
+                </div>
+                <button class="btn btn-primary" id="confirm-edit-driver">Update Driver</button>
             </div>
         </div>
         <div class="modal" id="login-modal">
@@ -611,17 +667,17 @@
             </div>
         </div>
         <div class="modal" id="withdraw-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <div class="modal-title">Withdraw Funds</div>
-            <div class="modal-close">&times;</div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Amount</label>
-            <input type="number" class="form-input" id="withdraw-amount" placeholder="Enter amount">
-        </div>
-        <button class="btn btn-primary" id="confirm-withdraw">Withdraw</button>
-    </div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Withdraw Funds</div>
+                    <div class="modal-close">&times;</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount</label>
+                    <input type="number" class="form-input" id="withdraw-amount" placeholder="Enter amount">
+                </div>
+                <button class="btn btn-primary" id="confirm-withdraw">Withdraw</button>
+            </div>
         </div>
         <div class="modal" id="logout-confirm-modal">
             <div class="modal-content">
@@ -634,29 +690,24 @@
                 <button class="btn btn-primary" id="confirm-logout">Logout</button>
             </div>
         </div>
-</div>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>    <script>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
         // Firebase configuration
-        // Import the functions you need from the SDKs you need
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+        const firebaseConfig = {
+            apiKey: "AIzaSyDF4QoPKP02tFadu2pOVlcZRXaA5NcpmY0",
+            authDomain: "taxidrive-337a3.firebaseapp.com",
+            databaseURL: "https://taxidrive-337a3-default-rtdb.firebaseio.com",
+            projectId: "taxidrive-337a3",
+            storageBucket: "taxidrive-337a3.firebasestorage.app",
+            messagingSenderId: "715498763019",
+            appId: "1:715498763019:web:b9fb152a7d5411ebba680e",
+            measurementId: "G-NB9PMBD7DQ"
+        };
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDF4QoPKP02tFadu2pOVlcZRXaA5NcpmY0",
-  authDomain: "taxidrive-337a3.firebaseapp.com",
-  databaseURL: "https://taxidrive-337a3-default-rtdb.firebaseio.com",
-  projectId: "taxidrive-337a3",
-  storageBucket: "taxidrive-337a3.firebasestorage.app",
-  messagingSenderId: "715498763019",
-  appId: "1:715498763019:web:b9fb152a7d5411ebba680e",
-  measurementId: "G-NB9PMBD7DQ"
-};
-
-// Initialize Firebase
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
@@ -668,226 +719,261 @@ const firebaseConfig = {
 
         // Update earnings history
         function updateEarningsHistory(period = 'daily') {
-    if (!userId) return;
-    const earningsList = document.getElementById('earnings-list');
-    const recentEarnings = document.getElementById('recent-earnings');
-    earningsList.innerHTML = '';
-    recentEarnings.innerHTML = '';
+            if (!userId) return;
+            const earningsList = document.getElementById('earnings-list');
+            const recentEarnings = document.getElementById('recent-earnings');
+            earningsList.innerHTML = '';
+            recentEarnings.innerHTML = '';
 
-    let total = 0;
-    let driverTotals = {}; // Track earnings per driver
+            let total = 0;
+            let driverTotals = {};
 
-    const now = new Date();
-    const startDate = period === 'daily' ? new Date(now.setHours(0, 0, 0, 0)) :
-                     period === 'weekly' ? new Date(now.setDate(now.getDate() - 7)) :
-                     new Date(now.setDate(now.getDate() - 30));
+            const now = new Date();
+            const startDate = period === 'daily' ? new Date(now.setHours(0, 0, 0, 0)) :
+                             period === 'weekly' ? new Date(now.setDate(now.getDate() - 7)) :
+                             new Date(now.setDate(now.getDate() - 30));
 
-    db.ref(`users/owners/${userId}/earnings`).once('value', snapshot => {
-        const earnings = snapshot.val() || [];
-        const earningsArray = Object.values(earnings).filter(earning => {
-            const earningDate = new Date(earning.time);
-            return earningDate >= startDate;
-        });
-        earningsArray.forEach(earning => {
-            total += earning.amount;
-            // Track by driver
-            const driver = earning.driver || 'Unknown';
-            if (!driverTotals[driver]) driverTotals[driver] = 0;
-            driverTotals[driver] += earning.amount;
-        });
+            db.ref(`users/owners/${userId}/earnings`).once('value', snapshot => {
+                const earnings = snapshot.val() || [];
+                const earningsArray = Object.values(earnings).filter(earning => {
+                    const earningDate = new Date(earning.time);
+                    return earningDate >= startDate;
+                });
+                earningsArray.forEach(earning => {
+                    const amount = Number(earning.amount) || 0;
+                    total += amount;
+                    const driver = earning.driver || 'Unknown';
+                    if (!driverTotals[driver]) driverTotals[driver] = 0;
+                    driverTotals[driver] += amount;
+                });
 
-        // Sort earnings by time descending for recent earnings
-        const sortedEarnings = earningsArray.sort((a, b) => new Date(b.time) - new Date(a.time));
+                const sortedEarnings = earningsArray.sort((a, b) => new Date(b.time) - new Date(a.time));
 
-        // Build HTML for earnings list (all)
-        sortedEarnings.forEach(earning => {
-            const driver = earning.driver || 'Unknown';
-            const earningHtml = `
-                <div class="list-item">
-                    <div class="item-info">
-                        <div class="item-icon"><i class="fas fa-money-bill"></i></div>
-                        <div class="item-details">
-                            <h4>${earning.vehicle}</h4>
-                            <p>${earning.time}</p>
-                            <p><strong>Driver:</strong> ${driver}</p>
-                        </div>
-                    </div>
-                    <div class="item-value">R ${earning.amount.toFixed(2)}</div>
-                </div>`;
-            earningsList.innerHTML += earningHtml;
-        });
-
-        // For recent earnings, limit to 5 latest
-        if (period === 'daily') {
-            const recentSorted = sortedEarnings.slice(0, 5);
-            recentSorted.forEach(earning => {
-                const driver = earning.driver || 'Unknown';
-                const earningHtml = `
-                    <div class="list-item">
-                        <div class="item-info">
-                            <div class="item-icon"><i class="fas fa-money-bill"></i></div>
-                            <div class="item-details">
-                                <h4>${earning.vehicle}</h4>
-                                <p>${earning.time}</p>
-                                <p><strong>Driver:</strong> ${driver}</p>
+                sortedEarnings.forEach(earning => {
+                    const driver = earning.driver || 'Unknown';
+                    const earningHtml = `
+                        <div class="list-item">
+                            <div class="item-info">
+                                <div class="item-icon"><i class="fas fa-money-bill"></i></div>
+                                <div class="item-details">
+                                    <h4>${earning.vehicle}</h4>
+                                    <p>${earning.time}</p>
+                                    <p><strong>Driver:</strong> ${driver}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="item-value">R ${earning.amount.toFixed(2)}</div>
-                    </div>`;
-                recentEarnings.innerHTML += earningHtml;
+                            <div class="item-value">R ${earning.amount.toFixed(2)}</div>
+                        </div>`;
+                    earningsList.innerHTML += earningHtml;
+                });
+
+                if (period === 'daily') {
+                    const recentSorted = sortedEarnings.slice(0, 5);
+                    recentSorted.forEach(earning => {
+                        const driver = earning.driver || 'Unknown';
+                        const earningHtml = `
+                            <div class="list-item">
+                                <div class="item-info">
+                                    <div class="item-icon"><i class="fas fa-money-bill"></i></div>
+                                    <div class="item-details">
+                                        <h4>${earning.vehicle}</h4>
+                                        <p>${earning.time}</p>
+                                        <p><strong>Driver:</strong> ${driver}</p>
+                                    </div>
+                                </div>
+                                <div class="item-value">R ${earning.amount.toFixed(2)}</div>
+                            </div>`;
+                        recentEarnings.innerHTML += earningHtml;
+                    });
+                }
+
+                let driverTotalsHtml = '';
+                Object.entries(driverTotals).forEach(([driver, amount]) => {
+                    driverTotalsHtml += `
+                        <div class="list-item">
+                            <div class="item-info">
+                                <div class="item-icon"><i class="fas fa-user"></i></div>
+                                <div class="item-details">
+                                    <h4>${driver}</h4>
+                                </div>
+                            </div>
+                            <div class="item-value">R ${amount.toFixed(2)}</div>
+                        </div>`;
+                    earningsList.innerHTML = driverTotalsHtml + earningsList.innerHTML;
+                });
+
+                document.getElementById('earnings-total').textContent = total.toFixed(2);
+                if (period === 'daily') {
+                    document.getElementById('wallet-balance').textContent = `R ${total.toFixed(2)}`;
+                }
+            }).catch(error => {
+                alert('Error loading earnings: ' + error.message);
             });
         }
 
-        // Show driver totals
-        let driverTotalsHtml = '';
-        Object.entries(driverTotals).forEach(([driver, amount]) => {
-            driverTotalsHtml += `
-                <div class="list-item">
-                    <div class="item-info">
-                        <div class="item-icon"><i class="fas fa-user"></i></div>
-                        <div class="item-details">
-                            <h4>${driver}</h4>
-                        </div>
-                    </div>
-                    <div class="item-value">R ${amount.toFixed(2)}</div>
-                </div>`;
-        });
-        // Add driver totals above earnings list
-        earningsList.innerHTML = driverTotalsHtml + earningsList.innerHTML;
-
-        document.getElementById('earnings-total').textContent = total.toFixed(2);
-        if (period === 'daily') {
-            document.getElementById('wallet-balance').textContent = `R ${total.toFixed(2)}`;
-        }
-    }).catch(error => {
-        alert('Error loading earnings: ' + error.message);
-    });
-}
         // Update fleet overview
-        function updateFleetOverview() {
+        async function updateFleetOverview() {
+            console.log('updateFleetOverview called with userId:', userId);
             if (!userId) return;
             const fleetList = document.getElementById('fleet-list');
             const fleetVehicles = document.getElementById('fleet-vehicles');
             fleetList.innerHTML = '';
             fleetVehicles.innerHTML = '';
-            db.ref(`users/owners/${userId}/vehicles`).once('value', snapshot => {
-    const vehicles = snapshot.val() || {};
-    fleetList.innerHTML = '';
-    fleetVehicles.innerHTML = '';
-    Object.entries(vehicles).forEach(([index, vehicle]) => {
-        let driverName = 'Unassigned';
-        if (vehicle.driverId) {
-            db.ref(`users/owners/${userId}/drivers/${vehicle.driverId}`).once('value', driverSnap => {
-                driverName = driverSnap.val()?.name || 'Unassigned';
-                const vehicleHtml = `
-                    <div class="list-item" data-vehicle-index="${index}">
-                        <div class="item-info">
-                            <div class="item-icon"><i class="fas fa-shuttle-van"></i></div>
-                            <div class="item-details">
-                                <h4>${vehicle.model}</h4>
-                                <p>${vehicle.reg}</p>
-                                <p><strong>Driver:</strong> ${driverName}</p>
-                                <p><strong>Total Earnings:</strong> R ${vehicle.totalEarnings ? vehicle.totalEarnings.toFixed(2) : '0.00'}</p>
-                            </div>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn btn-secondary edit-vehicle-btn" data-vehicle-index="${index}">Edit</button>
-                            <button class="btn btn-danger remove-vehicle-btn" data-vehicle-index="${index}">Remove</button>
-                        </div>
-                    </div>`;
-                fleetList.innerHTML += vehicleHtml;
-                fleetVehicles.innerHTML += vehicleHtml;
-            });
-        } else {
-            const vehicleHtml = `
-                <div class="list-item" data-vehicle-index="${index}">
-                    <div class="item-info">
-                        <div class="item-icon"><i class="fas fa-shuttle-van"></i></div>
-                        <div class="item-details">
-                            <h4>${vehicle.model}</h4>
-                            <p>${vehicle.reg}</p>
-                            <p><strong>Driver:</strong> ${driverName}</p>
-                            <p><strong>Total Earnings:</strong> R ${vehicle.totalEarnings ? vehicle.totalEarnings.toFixed(2) : '0.00'}</p>
-                        </div>
-                    </div>
-                    <div class="item-actions">
-                        <button class="btn btn-secondary edit-vehicle-btn" data-vehicle-index="${index}">Edit</button>
-                        <button class="btn btn-danger remove-vehicle-btn" data-vehicle-index="${index}">Remove</button>
-                    </div>
-                </div>`;
-            fleetList.innerHTML += vehicleHtml;
-            fleetVehicles.innerHTML += vehicleHtml;
-        }
-    });
-    updateMaintenanceDropdown();
 
-    // Add event listeners for edit and remove buttons
-    setTimeout(() => {
-        document.querySelectorAll('.edit-vehicle-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const vehicleIndex = btn.getAttribute('data-vehicle-index');
-                db.ref(`users/owners/${userId}/vehicles/${vehicleIndex}`).once('value', snapshot => {
-                    const vehicle = snapshot.val();
-                    if (vehicle) {
-                        document.getElementById('edit-vehicle-model').value = vehicle.model || '';
-                        document.getElementById('edit-vehicle-reg').value = vehicle.reg || '';
-                        document.getElementById('confirm-edit-vehicle').setAttribute('data-vehicle-index', vehicleIndex);
-                        openModal('edit-vehicle-modal');
+            try {
+                const vehiclesSnapshot = await db.ref(`users/owners/${userId}/vehicles`).once('value');
+                const vehicles = vehiclesSnapshot.val() || {};
+                console.log('Fetched vehicles:', vehicles);
+
+                const earningsSnapshot = await db.ref(`users/owners/${userId}/earnings`).once('value');
+                const earnings = earningsSnapshot.val() || {};
+
+                // Calculate total earnings per vehicle
+                const earningsByVehicle = {};
+                Object.values(earnings).forEach(e => {
+                    if (e.vehicle) {
+                        earningsByVehicle[e.vehicle] = (earningsByVehicle[e.vehicle] || 0) + Number(e.amount || 0);
                     }
                 });
-            });
-        });
 
-        document.getElementById('confirm-edit-vehicle').addEventListener('click', () => {
-            const vehicleIndex = document.getElementById('confirm-edit-vehicle').getAttribute('data-vehicle-index');
-            const model = document.getElementById('edit-vehicle-model').value;
-            const reg = document.getElementById('edit-vehicle-reg').value;
-            if (model && reg && vehicleIndex) {
-                db.ref(`users/owners/${userId}/vehicles/${vehicleIndex}`).update({
-                    model: model,
-                    reg: reg
-                }).then(() => {
-                    updateFleetOverview();
-                    closeModal('edit-vehicle-modal');
-                    alert('Vehicle updated successfully!');
-                }).catch(error => {
-                    alert('Error updating vehicle: ' + error.message);
+                // Fetch all drivers for name lookup
+                const driversSnapshot = await db.ref(`users/owners/${userId}/drivers`).once('value');
+                const drivers = driversSnapshot.val() || {};
+
+                // Map driver IDs to names
+                const driverNames = {};
+                await Promise.all(Object.values(drivers).map(async (driver) => {
+                    const driverId = driver.driverId;
+                    if (driverId) {
+                        const driverSnap = await db.ref(`users/owners/${userId}/drivers/${driverId}`).once('value');
+                        driverNames[driverId] = driverSnap.val()?.name || 'Unassigned';
+                    }
+                }));
+
+                // Build HTML after all data is ready
+                Object.entries(vehicles).forEach(([index, vehicle]) => {
+                    let status = 'Inactive (Not Allocated)';
+                    let statusColor = 'var(--danger)';
+                    if (vehicle.driverId) {
+                        status = 'Active (Allocated)';
+                        statusColor = 'var(--success)';
+                    } else if (vehicle.maintenance && Object.keys(vehicle.maintenance).length > 0) {
+                        status = 'Maintenance';
+                        statusColor = 'var(--warning)';
+                    }
+                    const driverName = vehicle.driverId ? driverNames[vehicle.driverId] || 'Unassigned' : 'Unassigned';
+                    const totalEarnings = earningsByVehicle[vehicle.reg] || 0;
+
+                    const vehicleHtml = `
+                        <div class="list-item" data-vehicle-index="${index}">
+                            <div class="item-info">
+                                <div class="item-icon"><i class="fas fa-shuttle-van"></i></div>
+                                <div class="item-details">
+                                    <h4>${vehicle.make || ''} ${vehicle.model || ''}</h4>
+                                    <p>${vehicle.reg}</p>
+                                    <p><strong>Driver:</strong> ${driverName}</p>
+                                    <p style="color:${statusColor};font-weight:600;">${status}</p>
+                                    <p><strong>Total Earnings:</strong> R ${totalEarnings.toFixed(2)}</p>
+                                </div>
+                            </div>
+                        </div>`;
+                    fleetList.innerHTML += vehicleHtml;
+                    fleetVehicles.innerHTML += vehicleHtml.replace('<div class="item-actions">', `<div class="item-value">R ${totalEarnings.toFixed(2)}</div>`);
                 });
-            } else {
-                alert('Please fill in all fields');
-            }
-        });
 
-        document.querySelectorAll('.remove-vehicle-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const vehicleId = btn.getAttribute('data-vehicle-index');
-                if (confirm('Are you sure you want to remove this vehicle from your fleet?')) {
-                    db.ref(`users/owners/${userId}/vehicles/${vehicleId}`).remove()
-                    .then(() => {
-                        updateFleetOverview();
-                        alert('Vehicle removed successfully!');
-                    })
-                    .catch(error => {
-                        alert('Error removing vehicle: ' + error.message);
+                updateMaintenanceDropdown();
+
+                const observer = new MutationObserver(() => {
+                    // Attach event listeners only in Fleet Management modal (fleet-list)
+                    const fleetList = document.getElementById('fleet-list');
+                    if (!fleetList) return;
+
+                    document.querySelectorAll('#fleet-list .edit-vehicle-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const vehicleIndex = btn.getAttribute('data-vehicle-index');
+                            db.ref(`users/owners/${userId}/vehicles/${vehicleIndex}`).once('value', snapshot => {
+                                const vehicle = snapshot.val();
+                                if (vehicle) {
+                                    document.getElementById('edit-vehicle-make').value = vehicle.make || '';
+                                    document.getElementById('edit-vehicle-model').value = vehicle.model || '';
+                                    document.getElementById('edit-vehicle-year').value = vehicle.year || '';
+                                    document.getElementById('edit-vehicle-color').value = vehicle.color || '';
+                                    document.getElementById('edit-vehicle-vin').value = vehicle.vin || '';
+                                    document.getElementById('edit-vehicle-engine').value = vehicle.engine || '';
+                                    document.getElementById('edit-vehicle-reg').value = vehicle.reg || '';
+                                    document.getElementById('edit-vehicle-license-expiry').value = vehicle.licenseExpiry || '';
+                                    document.getElementById('confirm-edit-vehicle').setAttribute('data-vehicle-index', vehicleIndex);
+                                    openModal('edit-vehicle-modal');
+                                }
+                            }).catch(error => {
+                                alert('Error loading vehicle data: ' + error.message);
+                            });
+                        });
                     });
-                }
-            });
-        });
-    }, 200); // Wait for DOM update
 
-    let fleetTotalEarnings = 0;
-Object.entries(vehicles).forEach(([index, vehicle]) => {
-    let vehicleTotal = 0;
-    if (vehicle.earnings) {
-        Object.values(vehicle.earnings).forEach(e => {
-            vehicleTotal += e.amount;
-        });
-    }
-    fleetTotalEarnings += vehicleTotal;
-    vehicle.totalEarnings = vehicleTotal; // Attach for display above
-    // ...rest of vehicleHtml code...
-});
-});
+                    document.querySelectorAll('#fleet-list .remove-vehicle-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const vehicleIndex = btn.getAttribute('data-vehicle-index');
+                            if (confirm('Are you sure you want to remove this vehicle from your fleet?')) {
+                                db.ref(`users/owners/${userId}/vehicles/${vehicleIndex}`).once('value', snapshot => {
+                                    const vehicle = snapshot.val();
+                                    if (vehicle.driverId) {
+                                        db.ref(`users/owners/${userId}/drivers/${vehicle.driverId}`).update({
+                                            vehicleId: ''
+                                        }).catch(error => {
+                                            alert('Error deallocating driver: ' + error.message);
+                                        });
+                                    }
+                                    db.ref(`users/owners/${userId}/vehicles/${vehicleIndex}`).remove()
+                                        .then(() => {
+                                            updateFleetOverview();
+                                            alert('Vehicle removed successfully!');
+                                        })
+                                        .catch(error => {
+                                            alert('Error removing vehicle: ' + error.message);
+                                        });
+                                });
+                            }
+                        });
+                    });
+
+                    document.getElementById('confirm-edit-vehicle').addEventListener('click', () => {
+                        const vehicleIndex = document.getElementById('confirm-edit-vehicle').getAttribute('data-vehicle-index');
+                        const make = document.getElementById('edit-vehicle-make').value;
+                        const model = document.getElementById('edit-vehicle-model').value;
+                        const year = document.getElementById('edit-vehicle-year').value;
+                        const color = document.getElementById('edit-vehicle-color').value;
+                        const vin = document.getElementById('edit-vehicle-vin').value;
+                        const engine = document.getElementById('edit-vehicle-engine').value;
+                        const reg = document.getElementById('edit-vehicle-reg').value;
+                        const licenseExpiry = document.getElementById('edit-vehicle-license-expiry').value;
+                        if (make && model && year && color && vin && engine && reg && licenseExpiry && vehicleIndex) {
+                            db.ref(`users/owners/${userId}/vehicles/${vehicleIndex}`).update({
+                                make: make,
+                                model: model,
+                                year: year,
+                                color: color,
+                                vin: vin,
+                                engine: engine,
+                                reg: reg,
+                                licenseExpiry: licenseExpiry
+                            }).then(() => {
+                                updateFleetOverview();
+                                closeModal('edit-vehicle-modal');
+                                alert('Vehicle updated successfully!');
+                            }).catch(error => {
+                                alert('Error updating vehicle: ' + error.message);
+                            });
+                        } else {
+                            alert('Please fill in all fields');
+                        }
+                    });
+
+                    observer.disconnect();
+                });
+                observer.observe(fleetList, { childList: true, subtree: true });
+            } catch (error) {
+                alert('Error loading vehicles: ' + error.message);
+            }
         }
 
         // Update maintenance dropdown
@@ -899,7 +985,7 @@ Object.entries(vehicles).forEach(([index, vehicle]) => {
                 Object.entries(vehicles).forEach(([index, vehicle]) => {
                     const option = document.createElement('option');
                     option.value = index;
-                    option.textContent = `${vehicle.model} (${vehicle.reg})`;
+                    option.textContent = `${vehicle.make || ''} ${vehicle.model} (${vehicle.reg})`;
                     select.appendChild(option);
                 });
             });
@@ -907,145 +993,155 @@ Object.entries(vehicles).forEach(([index, vehicle]) => {
 
         // Update driver management
         function updateDriverManagement() {
-    if (!userId) return;
-    const driverList = document.getElementById('driver-list');
-    const driverSelect = document.getElementById('manage-driver-select');
-    driverList.innerHTML = '';
-    driverSelect.innerHTML = '';
-    db.ref(`users/owners/${userId}/drivers`).on('value', snapshot => {
-        const drivers = snapshot.val() || {};
-        Object.entries(drivers).forEach(([index, driver]) => {
-            // Fetch live data from driver node
-            db.ref(`users/drivers/${driver.driverId}`).once('value', driverSnap => {
-                const driverData = driverSnap.val() || {};
-                let status = driverData.onDuty ? 'On Duty' : 'Off Duty';
-                if (driverData.onDuty && !driver.vehicleId) {
-                    status = 'Off Duty (No Vehicle)';
-                }
-                const statusColor = driverData.onDuty && driver.vehicleId ? 'var(--success)' : 'var(--danger)';
-                const route = driverData.currentRoute || 'N/A';
-                // Calculate today's earnings from driver trips
-                let earningsToday = 0;
-                const today = new Date().toISOString().slice(0, 10);
-                if (driverData.trips) {
-                    Object.values(driverData.trips).forEach(trip => {
-                        if (trip.timestamp && trip.timestamp.slice(0, 10) === today) {
-                            earningsToday += Number(trip.amount) || 0;
+            if (!userId) return;
+            const driverList = document.getElementById('driver-list');
+            const driverSelect = document.getElementById('manage-driver-select');
+            driverList.innerHTML = '';
+            driverSelect.innerHTML = '';
+            db.ref(`users/owners/${userId}/drivers`).on('value', snapshot => {
+                const drivers = snapshot.val() || {};
+                Object.entries(drivers).forEach(([index, driver]) => {
+                    db.ref(`users/drivers/${driver.driverId}`).once('value', driverSnap => {
+                        const driverData = driverSnap.val() || {};
+                        let status = driverData.onDuty ? 'On Duty' : 'Off Duty';
+                        if (driverData.onDuty && !driver.vehicleId) {
+                            status = 'Off Duty (No Vehicle)';
+                        }
+                        const statusColor = driverData.onDuty && driver.vehicleId ? 'var(--success)' : 'var(--danger)';
+                        const route = driverData.currentRoute || 'N/A';
+                        let earningsToday = 0;
+                        const today = new Date().toISOString().slice(0, 10);
+                        if (driverData.trips) {
+                            Object.values(driverData.trips).forEach(trip => {
+                                if (trip.timestamp && trip.timestamp.slice(0, 10) === today) {
+                                    earningsToday += Number(trip.amount) || 0;
+                                }
+                            });
+                        }
+                        const driverHtml = `
+                            <div class="list-item" data-driver-index="${index}">
+                                <div class="item-info">
+                                    <div class="item-icon"><i class="fas fa-user"></i></div>
+                                    <div class="item-details">
+                                        <h4>${driverData.name || driver.name}</h4>
+                                        <p>${driverData.email || driver.email}</p>
+                                        <p style="color:${statusColor};font-weight:600;">${status}</p>
+                                        <p><strong>Current Route:</strong> ${route}</p>
+                                        <p><strong>Today's Earnings:</strong> R ${earningsToday.toFixed(2)}</p>
+                                    </div>
+                                </div>
+                                <div class="item-actions">
+                                    <button class="btn btn-secondary edit-driver-btn" data-driver-index="${index}">Edit</button>
+                                    <button class="btn btn-danger remove-driver-btn" data-driver-index="${index}">Remove</button>
+                                </div>
+                            </div>`;
+                        driverList.innerHTML += driverHtml;
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = driverData.name || driver.name;
+                        driverSelect.appendChild(option);
+                    });
+                });
+
+                updateDriverBehavior();
+
+                const observer = new MutationObserver(() => {
+                    document.querySelectorAll('.edit-driver-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const driverIndex = btn.getAttribute('data-driver-index');
+                            db.ref(`users/owners/${userId}/drivers/${driverIndex}`).once('value', snapshot => {
+                                const driver = snapshot.val();
+                                if (driver) {
+                                    document.getElementById('edit-driver-name').value = driver.name || '';
+                                    document.getElementById('edit-driver-email').value = driver.email || '';
+                                    document.getElementById('confirm-edit-driver').setAttribute('data-driver-index', driverIndex);
+                                    openModal('edit-driver-modal');
+                                }
+                            }).catch(error => {
+                                alert('Error loading driver data: ' + error.message);
+                            });
+                        });
+                    });
+
+                    document.querySelectorAll('.remove-driver-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const driverIndex = btn.getAttribute('data-driver-index');
+                            if (confirm('Are you sure you want to remove this driver from your fleet?')) {
+                                db.ref(`users/owners/${userId}/drivers/${driverIndex}`).once('value', snapshot => {
+                                    const driver = snapshot.val();
+                                    if (driver.vehicleId) {
+                                        db.ref(`users/owners/${userId}/vehicles/${driver.vehicleId}`).update({
+                                            driverId: ''
+                                        }).catch(error => {
+                                            alert('Error deallocating vehicle: ' + error.message);
+                                        });
+                                    }
+                                    db.ref(`users/owners/${userId}/drivers/${driverIndex}`).remove()
+                                        .then(() => {
+                                            updateDriverManagement();
+                                            alert('Driver removed successfully!');
+                                        })
+                                        .catch(error => {
+                                            alert('Error removing driver: ' + error.message);
+                                        });
+                                });
+                            }
+                        });
+                    });
+                    observer.disconnect();
+                });
+                observer.observe(driverList, { childList: true, subtree: true });
+            }, error => {
+                alert('Error loading drivers: ' + error.message);
+            });
+        }
+
+        // Update driver behavior
+        function updateDriverBehavior() {
+            const driverSelect = document.getElementById('manage-driver-select');
+            const behaviorList = document.getElementById('driver-behavior');
+            behaviorList.innerHTML = '';
+            if (!driverSelect.value) return;
+            db.ref(`users/owners/${userId}/drivers/${driverSelect.value}/behavior`).once('value', snapshot => {
+                const behaviors = snapshot.val() || {};
+                Object.entries(behaviors).forEach(([index, behavior]) => {
+                    const behaviorHtml = `
+                        <div class="list-item" data-behavior-index="${index}">
+                            <div class="item-info">
+                                <div class="item-icon"><i class="fas fa-comment"></i></div>
+                                <div class="item-details">
+                                    <h4>${behavior.subject || 'Comment'}</h4>
+                                    <p>${behavior.message || ''} - ${behavior.time || ''}</p>
+                                    <p><strong>Passenger Email:</strong> ${behavior.passengerEmail || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-success resolve-comment-btn" data-comment-id="${index}">Resolve</button>
+                            <button class="btn btn-secondary reply-comment-btn" data-email="${behavior.passengerEmail}">Reply</button>
+                        </div>`;
+                    behaviorList.innerHTML += behaviorHtml;
+                });
+
+                document.querySelectorAll('.reply-comment-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const email = btn.dataset.email;
+                        if (email && email !== 'N/A') {
+                            window.location.href = `mailto:${email}?subject=Reply from TaxiDrive Owner`;
+                        } else {
+                            alert('No passenger email available.');
                         }
                     });
-                }
-                const driverHtml = `
-                    <div class="list-item" data-driver-index="${index}">
-                        <div class="item-info">
-                            <div class="item-icon"><i class="fas fa-user"></i></div>
-                            <div class="item-details">
-                                <h4>${driverData.name || driver.name}</h4>
-                                <p>${driverData.email || driver.email}</p>
-                                <p style="color:${statusColor};font-weight:600;">${status}</p>
-                                <p><strong>Current Route:</strong> ${route}</p>
-                                <p><strong>Today's Earnings:</strong> R ${earningsToday.toFixed(2)}</p>
-                            </div>
-                        </div>
-                    </div>`;
-                driverList.innerHTML += driverHtml;
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = driverData.name || driver.name;
-                driverSelect.appendChild(option);
+                });
+
+                document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const commentId = btn.dataset.commentId;
+                        db.ref(`users/owners/${userId}/drivers/${driverSelect.value}/behavior/${commentId}`).remove();
+                        updateDriverBehavior();
+                    });
+                });
             });
-        });
-
-        updateDriverBehavior();
-    }, error => {
-        alert('Error loading drivers: ' + error.message);
-    });
-}
-        // Update driver behavior
-function updateDriverBehavior() {
-    const driverSelect = document.getElementById('manage-driver-select');
-    const behaviorList = document.getElementById('driver-behavior');
-    behaviorList.innerHTML = '';
-    if (!driverSelect.value) return;
-    db.ref(`users/owners/${userId}/drivers/${driverSelect.value}/behavior`).once('value', snapshot => {
-        const behaviors = snapshot.val() || {};
-        Object.entries(behaviors).forEach(([index, behavior]) => {
-            const behaviorHtml = `
-                <div class="list-item" data-behavior-index="${index}">
-                    <div class="item-info">
-                        <div class="item-icon"><i class="fas fa-comment"></i></div>
-                        <div class="item-details">
-                            <h4>${behavior.subject || 'Comment'}</h4>
-                            <p>${behavior.message || ''} - ${behavior.time || ''}</p>
-                            <p><strong>Passenger Email:</strong> ${behavior.passengerEmail || 'N/A'}</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-success resolve-comment-btn" data-comment-id="${index}">Resolve</button>
-                    <button class="btn btn-secondary reply-comment-btn" data-email="${behavior.passengerEmail}">Reply</button>
-                </div>`;
-            behaviorList.innerHTML += behaviorHtml;
-        });
-
-        // Add event listener for reply
-        document.querySelectorAll('.reply-comment-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const email = btn.dataset.email;
-                if (email && email !== 'N/A') {
-                    window.location.href = `mailto:${email}?subject=Reply from TaxiDrive Owner`;
-                } else {
-                    alert('No passenger email available.');
-                }
-            });
-        });
-
-        // Add event listener for resolve
-        document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const commentId = btn.dataset.commentId;
-                db.ref(`users/owners/${userId}/drivers/${driverSelect.value}/behavior/${commentId}`).remove();
-                updateDriverBehavior();
-            });
-        });
-    });
-}
-
-// Add event listener for reply
-document.querySelectorAll('.reply-comment-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const email = btn.dataset.email;
-        if (email && email !== 'N/A') {
-            window.location.href = `mailto:${email}?subject=Reply from TaxiDrive Owner`;
-        } else {
-            alert('No passenger email available.');
         }
-    });
-});
-// Add event listener for resolve
-document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const commentId = btn.dataset.commentId;
-        db.ref(`users/owners/${userId}/drivers/${driverSelect.value}/behavior/${commentId}`).remove();
-        updateDriverBehavior();
-    });
-});
-        document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('withdraw-btn').addEventListener('click', () => {
-        openModal('withdraw-modal');
-    });
-    document.getElementById('confirm-withdraw').addEventListener('click', () => {
-        const amount = parseFloat(document.getElementById('withdraw-amount').value);
-        if (amount > 0 && amount <= walletBalance) {
-            walletBalance -= amount;
-            db.ref(`users/owners/${userId}/walletBalance`).set(walletBalance).then(() => {
-                document.getElementById('wallet-balance').textContent = `R ${walletBalance.toFixed(2)}`;
-                closeModal('withdraw-modal');
-                alert('Withdrawal successful!');
-            });
-        } else {
-            alert('Invalid amount or insufficient funds');
-        }
-    });
-    // ...add other event listeners here...
-});
+
         // Modal functionality
         const modals = document.querySelectorAll('.modal');
         const closeModalButtons = document.querySelectorAll('.modal-close');
@@ -1113,12 +1209,24 @@ document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
         });
 
         document.getElementById('confirm-add-vehicle').addEventListener('click', () => {
+            const make = document.getElementById('vehicle-make').value;
             const model = document.getElementById('vehicle-model').value;
+            const year = document.getElementById('vehicle-year').value;
+            const color = document.getElementById('vehicle-color').value;
+            const vin = document.getElementById('vehicle-vin').value;
+            const engine = document.getElementById('vehicle-engine').value;
             const reg = document.getElementById('vehicle-reg').value;
-            if (model && reg) {
+            const licenseExpiry = document.getElementById('vehicle-license-expiry').value;
+            if (make && model && year && color && vin && engine && reg && licenseExpiry) {
                 db.ref(`users/owners/${userId}/vehicles`).push({
+                    make: make,
                     model: model,
+                    year: year,
+                    color: color,
+                    vin: vin,
+                    engine: engine,
                     reg: reg,
+                    licenseExpiry: licenseExpiry,
                     driverId: ''
                 }).then(() => {
                     updateFleetOverview();
@@ -1170,42 +1278,41 @@ document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
         });
 
         document.getElementById('confirm-add-driver').addEventListener('click', () => {
-    const email = document.getElementById('driver-email').value;
-    if (email) {
-        db.ref('users/drivers').orderByChild('email').equalTo(email).once('value', snapshot => {
-            if (!snapshot.exists()) {
-                alert('Driver not found. Please make sure the driver has signed up.');
-                return;
-            }
-            const driverId = Object.keys(snapshot.val())[0];
-            const driverData = snapshot.val()[driverId];
-            if (!driverData.name) {
-                alert('Driver record found, but missing name. Please check driver registration.');
-                return;
-            }
-            // Add driver to owner's list (use .push() for object, not array)
-            db.ref(`users/owners/${userId}/drivers`).push({
-                driverId: driverId,
-                name: driverData.name,
-                email: email,
-                onDuty: false, // default to off duty
-                behavior: []
-            }).then(() => {
-                // Link owner to driver
-                db.ref(`users/drivers/${driverId}/vehicle`).update({
-                    ownerId: userId
+            const email = document.getElementById('driver-email').value;
+            if (email) {
+                db.ref('users/drivers').orderByChild('email').equalTo(email).once('value', snapshot => {
+                    if (!snapshot.exists()) {
+                        alert('Driver not found. Please make sure the driver has signed up.');
+                        return;
+                    }
+                    const driverId = Object.keys(snapshot.val())[0];
+                    const driverData = snapshot.val()[driverId];
+                    if (!driverData.name) {
+                        alert('Driver record found, but missing name. Please check driver registration.');
+                        return;
+                    }
+                    db.ref(`users/owners/${userId}/drivers`).push({
+                        driverId: driverId,
+                        name: driverData.name,
+                        email: email,
+                        onDuty: false,
+                        behavior: []
+                    }).then(() => {
+                        db.ref(`users/drivers/${driverId}/vehicle`).update({
+                            ownerId: userId
+                        });
+                        updateDriverManagement();
+                        closeModal('add-driver-modal');
+                        alert('Driver added successfully!');
+                    }).catch(error => {
+                        alert('Error adding driver: ' + error.message);
+                    });
                 });
-                updateDriverManagement();
-                closeModal('add-driver-modal');
-                alert('Driver added successfully!');
-            }).catch(error => {
-                alert('Error adding driver: ' + error.message);
-            });
+            } else {
+                alert('Please enter driver email');
+            }
         });
-    } else {
-        alert('Please enter driver email');
-    }
-});
+
         document.getElementById('manage-driver-btn').addEventListener('click', () => {
             updateDriverManagement();
             openModal('manage-driver-modal');
@@ -1230,6 +1337,92 @@ document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
                 });
             } else {
                 alert('Please enter notes');
+            }
+        });
+
+        document.getElementById('confirm-edit-driver').addEventListener('click', () => {
+            const driverIndex = document.getElementById('confirm-edit-driver').getAttribute('data-driver-index');
+            const name = document.getElementById('edit-driver-name').value;
+            if (name && driverIndex) {
+                db.ref(`users/owners/${userId}/drivers/${driverIndex}`).update({
+                    name: name
+                }).then(() => {
+                    db.ref(`users/drivers/${driverIndex}/name`).set(name);
+                    updateDriverManagement();
+                    closeModal('edit-driver-modal');
+                    alert('Driver updated successfully!');
+                }).catch(error => {
+                    alert('Error updating driver: ' + error.message);
+                });
+            } else {
+                alert('Please enter a name');
+            }
+        });
+
+        // Withdraw funds
+        document.getElementById('withdraw-btn').addEventListener('click', () => {
+            openModal('withdraw-modal');
+        });
+
+        document.getElementById('confirm-withdraw').addEventListener('click', () => {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            if (amount > 0 && amount <= walletBalance) {
+                walletBalance -= amount;
+                db.ref(`users/owners/${userId}/walletBalance`).set(walletBalance).then(() => {
+                    document.getElementById('wallet-balance').textContent = `R ${walletBalance.toFixed(2)}`;
+                    closeModal('withdraw-modal');
+                    alert('Withdrawal successful!');
+                });
+            } else {
+                alert('Invalid amount or insufficient funds');
+            }
+        });
+
+        // Allocate vehicle
+        document.getElementById('allocate-vehicle-btn').addEventListener('click', () => {
+            const vehicleSelect = document.getElementById('allocate-vehicle-select');
+            vehicleSelect.innerHTML = '';
+            db.ref(`users/owners/${userId}/vehicles`).once('value', snapshot => {
+                const vehicles = snapshot.val() || {};
+                Object.entries(vehicles).forEach(([key, vehicle]) => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = `${vehicle.make || ''} ${vehicle.model} (${vehicle.reg})`;
+                    vehicleSelect.appendChild(option);
+                });
+            });
+
+            const driverSelect = document.getElementById('allocate-driver-select');
+            driverSelect.innerHTML = '';
+            db.ref(`users/owners/${userId}/drivers`).once('value', snapshot => {
+                const drivers = snapshot.val() || {};
+                Object.entries(drivers).forEach(([key, driver]) => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = driver.name;
+                    driverSelect.appendChild(option);
+                });
+            });
+
+            openModal('allocate-vehicle-modal');
+        });
+
+        document.getElementById('confirm-allocate-vehicle').addEventListener('click', () => {
+            const vehicleKey = document.getElementById('allocate-vehicle-select').value;
+            const driverKey = document.getElementById('allocate-driver-select').value;
+            if (vehicleKey && driverKey) {
+                db.ref(`users/owners/${userId}/vehicles/${vehicleKey}/driverId`).set(driverKey)
+                .then(() => {
+                    db.ref(`users/owners/${userId}/drivers/${driverKey}/vehicleId`).set(vehicleKey);
+                    closeModal('allocate-vehicle-modal');
+                    updateFleetOverview();
+                    updateDriverManagement();
+                    alert('Vehicle allocated to driver!');
+                }).catch(error => {
+                    alert('Error allocating vehicle: ' + error.message);
+                });
+            } else {
+                alert('Please select both vehicle and driver');
             }
         });
 
@@ -1350,66 +1543,9 @@ document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
         // Initialize application
         window.onload = function() {
             updateEarningsHistory();
-            updateFleetOverview();
+            // Removed updateFleetOverview() call here to avoid running before userId is set
             updateDriverManagement();
         };
-        
-        // ...existing code...
-
-// Open allocation modal
-document.getElementById('allocate-vehicle-btn').addEventListener('click', () => {
-    // Populate vehicles
-    const vehicleSelect = document.getElementById('allocate-vehicle-select');
-    vehicleSelect.innerHTML = '';
-    db.ref(`users/owners/${userId}/vehicles`).once('value', snapshot => {
-        const vehicles = snapshot.val() || {};
-        Object.entries(vehicles).forEach(([key, vehicle]) => {
-            const option = document.createElement('option');
-            option.value = key;
-            option.textContent = `${vehicle.model} (${vehicle.reg})`;
-            vehicleSelect.appendChild(option);
-        });
-    });
-
-    // Populate drivers
-    const driverSelect = document.getElementById('allocate-driver-select');
-    driverSelect.innerHTML = '';
-    db.ref(`users/owners/${userId}/drivers`).once('value', snapshot => {
-        const drivers = snapshot.val() || {};
-        Object.entries(drivers).forEach(([key, driver]) => {
-            const option = document.createElement('option');
-            option.value = key;
-            option.textContent = driver.name;
-            driverSelect.appendChild(option);
-        });
-    });
-
-    openModal('allocate-vehicle-modal');
-});
-
-// Confirm allocation
-document.getElementById('confirm-allocate-vehicle').addEventListener('click', () => {
-    const vehicleKey = document.getElementById('allocate-vehicle-select').value;
-    const driverKey = document.getElementById('allocate-driver-select').value;
-    if (vehicleKey && driverKey) {
-        // Set driverId on vehicle
-        db.ref(`users/owners/${userId}/vehicles/${vehicleKey}/driverId`).set(driverKey)
-        .then(() => {
-            // Optionally, set vehicleId on driver
-            db.ref(`users/owners/${userId}/drivers/${driverKey}/vehicleId`).set(vehicleKey);
-            closeModal('allocate-vehicle-modal');
-            updateFleetOverview();
-            updateDriverManagement();
-            alert('Vehicle allocated to driver!');
-        }).catch(error => {
-            alert('Error allocating vehicle: ' + error.message);
-        });
-    } else {
-        alert('Please select both vehicle and driver');
-    }
-});
-
-// ...existing code...
     </script>
 </body>
 </html>

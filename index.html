@@ -1590,10 +1590,14 @@
 
         // Initialize application
         window.onload = function() {
-            updateEarningsHistory();
-            // Removed updateFleetOverview() call here to avoid running before userId is set
-            updateDriverManagement();
-        };
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    updateEarningsHistory();
+                    updateFleetOverview();
+                    updateDriverManagement();
+    }
+  });
+};
     </script>
 </body>
 </html>

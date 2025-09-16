@@ -1033,15 +1033,18 @@
     console.log('No userId, skipping updateDriverManagement');
     return;
   }
+  console.log('Fetching drivers for owner:', userId);
   const driverList = document.getElementById('driver-list');
   const driverSelect = document.getElementById('manage-driver-select');
   driverList.innerHTML = '';
   driverSelect.innerHTML = '';
   db.ref(`users/owners/${userId}/drivers`).on('value', snapshot => {
     const drivers = snapshot.val() || {};
+    console.log('Drivers data:', drivers);
     Object.entries(drivers).forEach(([index, driver]) => {
       db.ref(`users/drivers/${driver.driverId}`).once('value', driverSnap => {
         const driverData = driverSnap.val() || {};
+        console.log(`Driver ${driver.driverId} data:`, driverData);
         let status = driverData.onDuty ? 'On Duty' : 'Off Duty';
         if (driverData.onDuty && !driver.vehicleId) {
           status = 'Off Duty (No Vehicle)';
@@ -1080,8 +1083,7 @@
         option.textContent = driverData.name || driver.name || 'Unknown';
         driverSelect.appendChild(option);
       }, error => {
-        console.error('Error fetching driver data:', error.message);
-        // Fallback to owner-stored data if driver data is inaccessible
+        console.error(`Error fetching driver ${driver.driverId}:`, error.message);
         const driverHtml = `
           <div class="list-item" data-driver-index="${index}">
             <div class="item-info">
@@ -1155,6 +1157,7 @@
     observer.observe(driverList, { childList: true, subtree: true });
   }, error => {
     alert('Error loading drivers: ' + error.message);
+    console.error('Error loading drivers:', error);
   });
 }
         // Update driver behavior

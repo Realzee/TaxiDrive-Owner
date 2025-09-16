@@ -1476,37 +1476,38 @@
 
         // Authentication
         auth.onAuthStateChanged(user => {
-            if (user) {
-                isLoggedIn = true;
-                userId = user.uid;
-                document.getElementById('login-logout-btn').textContent = 'Logout';
-                db.ref(`users/owners/${userId}`).once('value', snapshot => {
-                    const data = snapshot.val();
-                    walletBalance = data?.walletBalance || 0;
-                    document.getElementById('wallet-balance').textContent = `R ${Number(walletBalance).toFixed(2)}`;
-                    document.getElementById('user-name').textContent = data?.name || user.displayName || 'User';
-                    if (!data) {
-                        db.ref(`users/owners/${userId}`).set({
-                            email: user.email,
-                            name: document.getElementById('signup-name').value || 'Owner',
-                            walletBalance: 0,
-                            vehicles: [],
-                            drivers: []
-                        });
-                    }
-                    updateEarningsHistory();
-                    updateFleetOverview();
-                    updateDriverManagement();
-                });
-            } else {
-                isLoggedIn = false;
-                userId = null;
-                walletBalance = 0;
-                document.getElementById('wallet-balance').textContent = 'R 0.00';
-                document.getElementById('login-logout-btn').textContent = 'Login';
-                document.getElementById('user-name').textContent = '';
-            }
+  console.log('Auth state changed:', user ? user.uid : 'No user');
+  if (user) {
+    isLoggedIn = true;
+    userId = user.uid;
+    console.log('Set userId:', userId);
+    db.ref(`users/owners/${userId}`).once('value', snapshot => {
+      const data = snapshot.val();
+      walletBalance = data?.walletBalance || 0;
+      document.getElementById('wallet-balance').textContent = `R ${Number(walletBalance).toFixed(2)}`;
+      document.getElementById('user-name').textContent = data?.name || user.displayName || 'User';
+      if (!data) {
+        db.ref(`users/owners/${userId}`).set({
+          email: user.email,
+          name: document.getElementById('signup-name').value || 'Owner',
+          walletBalance: 0,
+          vehicles: [],
+          drivers: []
         });
+      }
+      updateEarningsHistory();
+      updateFleetOverview();
+      updateDriverManagement();
+    });
+  } else {
+    isLoggedIn = false;
+    userId = null;
+    walletBalance = 0;
+    document.getElementById('wallet-balance').textContent = 'R 0.00';
+    document.getElementById('login-logout-btn').textContent = 'Login';
+    document.getElementById('user-name').textContent = '';
+  }
+});
 
         document.getElementById('login-logout-btn').addEventListener('click', () => {
             if (isLoggedIn) {

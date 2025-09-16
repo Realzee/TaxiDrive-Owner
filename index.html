@@ -633,7 +633,6 @@
                     <label class="form-label">Notes</label>
                     <textarea class="form-input" id="driver-notes" placeholder="Enter notes"></textarea>
                 </div>
-                <button class="btn btn-primary" id="allocate-vehicle-btn">Allocate Vehicle</button>
                 <button class="btn btn-primary" id="save-driver-notes">Save Notes</button>
             </div>
         </div>
@@ -1030,14 +1029,17 @@
 
         // Update driver management
         function updateDriverManagement() {
+            console.log('updateDriverManagement called with userId:', userId);
             if (!userId) return;
             const driverList = document.getElementById('driver-list');
             const driverSelect = document.getElementById('manage-driver-select');
             driverList.innerHTML = '';
             driverSelect.innerHTML = '';
             db.ref(`users/owners/${userId}/drivers`).on('value', snapshot => {
+                console.log('drivers snapshot:', snapshot);
                 const drivers = snapshot.val() || {};
                 Object.entries(drivers).forEach(([index, driver]) => {
+                    console.log('driver entry:', index, driver);
                     db.ref(`users/drivers/${driver.driverId}`).once('value', driverSnap => {
                         const driverData = driverSnap.val() || {};
                         let status = driverData.onDuty ? 'On Duty' : 'Off Duty';

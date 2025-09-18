@@ -443,24 +443,40 @@
                 <button class="btn btn-primary" id="add-vehicle-btn">Add Vehicle</button>
                 <button class="btn btn-primary" id="maintain-vehicle-btn">Maintain Vehicles</button>
             </div>
-        </div>
-        <div class="modal" id="add-vehicle-modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-title">Add Vehicle</div>
-                    <div class="modal-close">&times;</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Vehicle Model</label>
-                    <input type="text" class="form-input" id="vehicle-model" placeholder="Enter vehicle model">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Registration Number</label>
-                    <input type="text" class="form-input" id="vehicle-reg" placeholder="Enter registration number">
-                </div>
-                <button class="btn btn-primary" id="confirm-add-vehicle">Add Vehicle</button>
-            </div>
-        </div>
+        </div><!-- Add Vehicle Modal -->
+<div id="add-vehicle-modal" class="modal">
+    <div class="modal-content">
+        <h2>Add Vehicle</h2>
+        <form id="add-vehicle-form">
+            <label for="vehicle-make">Make</label>
+            <input type="text" id="vehicle-make" placeholder="Enter vehicle make" required maxlength="50">
+
+            <label for="vehicle-model">Model</label>
+            <input type="text" id="vehicle-model" placeholder="Enter vehicle model" required maxlength="50">
+
+            <label for="vehicle-year">Year</label>
+            <input type="number" id="vehicle-year" placeholder="Enter year" required min="1900" max="2100">
+
+            <label for="vehicle-color">Color</label>
+            <input type="text" id="vehicle-color" placeholder="Enter color" required maxlength="50">
+
+            <label for="vehicle-vin">VIN Number</label>
+            <input type="text" id="vehicle-vin" placeholder="Enter VIN number" required maxlength="17">
+
+            <label for="vehicle-engine">Engine Number</label>
+            <input type="text" id="vehicle-engine" placeholder="Enter engine number" required maxlength="50">
+
+            <label for="vehicle-reg">Registration Number</label>
+            <input type="text" id="vehicle-reg" placeholder="Enter registration number" required maxlength="20">
+
+            <label for="vehicle-license-expiry">License Expiry Date</label>
+            <input type="text" id="vehicle-license-expiry" placeholder="mm/dd/yyyy" required pattern="(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\d{4}">
+
+            <button type="submit" class="btn btn-primary">Add Vehicle</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal('add-vehicle-modal')">Cancel</button>
+        </form>
+    </div>
+</div>
         <div class="modal" id="maintain-vehicle-modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -965,7 +981,44 @@ document.querySelectorAll('.resolve-comment-btn').forEach(btn => {
         }
     });
 
-    // Add event listener for maintain vehicle button
+// Handle form submission
+document.getElementById('add-vehicle-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!userId) {
+        console.log('No userId, cannot add vehicle');
+        alert('Please log in to add a vehicle');
+        return;
+    }
+
+    const vehicleData = {
+        make: document.getElementById('vehicle-make').value.trim(),
+        model: document.getElementById('vehicle-model').value.trim(),
+        year: parseInt(document.getElementById('vehicle-year').value),
+        color: document.getElementById('vehicle-color').value.trim(),
+        vin: document.getElementById('vehicle-vin').value.trim(),
+        engine: document.getElementById('vehicle-engine').value.trim(),
+        reg: document.getElementById('vehicle-reg').value.trim(),
+        licenseExpiry: document.getElementById('vehicle-license-expiry').value.trim(),
+        vehicleStatus: 'inactive', // Default status
+        driverId: '', // Can be updated later when assigning a driver
+        maintenance: {} // Initialize maintenance node
+    };
+
+    const newVehicleRef = db.ref(`users/owners/${userId}/vehicles`).push();
+    newVehicleRef.set(vehicleData)
+        .then(() => {
+            console.log('Vehicle added successfully:', newVehicleRef.key);
+            closeModal('add-vehicle-modal');
+            document.getElementById('add-vehicle-form').reset();
+            updateDriverManagement(); // Refresh the driver list to reflect new vehicle
+            alert('Vehicle added successfully!');
+        })
+        .catch(error => {
+            console.error('Error adding vehicle:', error.message);
+            alert('Error adding vehicle: ' + error.message);
+        });
+});
+            // Add event listener for maintain vehicle button
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('maintain-vehicle-btn')) {
         const vehicleId = e.target.getAttribute('data-vehicle-id');
@@ -1011,7 +1064,7 @@ document.getElementById('maintain-vehicle-confirm').addEventListener('click', ()
         const closeModalButtons = document.querySelectorAll('.modal-close');
 
         function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
+            document.getElementById(modalId).style.display = 'block';
         }
 
         function closeModal(modalId) {

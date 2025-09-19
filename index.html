@@ -950,7 +950,11 @@
                         status = 'Maintenance';
                         statusColor = 'var(--warning)';
                     }
-                    const driverName = vehicle.driverId ? driverNames[vehicle.driverId] || 'Unassigned' : 'Unassigned';
+                    // Correctly show allocated driver name on fleet overview
+                    let driverName = 'Unassigned';
+                    if (vehicle.driverId) {
+                        driverName = driverNames[vehicle.driverId] || 'Unassigned';
+                    }
                     const totalEarnings = earningsByVehicle[vehicle.reg] || 0;
 
                     const vehicleHtml = `
@@ -1133,6 +1137,9 @@
                                 }
                             });
                         }
+                        // Correctly show allocated vehicle on driver management
+                        const allocatedVehicle = driverData.vehicleId ? vehicles[driverData.vehicleId] : null;
+                        const vehicleInfo = allocatedVehicle ? `${allocatedVehicle.make || ''} ${allocatedVehicle.model || ''} (${allocatedVehicle.reg || ''})` : 'Unassigned';
                         const driverHtml = `
           <div class="list-item" data-driver-index="${index}">
             <div class="item-info">
@@ -1142,6 +1149,7 @@
                 <p>${driverData.email || driver.email || 'N/A'}</p>
                 <p style="color:${statusColor};font-weight:600;">${status}</p>
                 <p><strong>Current Route:</strong> ${route}</p>
+                <p><strong>Allocated Vehicle:</strong> ${vehicleInfo}</p>
                 <p><strong>Today's Earnings:</strong> R ${earningsToday.toFixed(2)}</p>
               </div>
             </div>

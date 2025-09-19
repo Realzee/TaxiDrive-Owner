@@ -969,8 +969,21 @@
                                 <button class="btn btn-danger remove-vehicle-btn" data-vehicle-index="${index}">Remove</button>
                             </div>
                         </div>`;
-                    const vehicleHtmlModal = vehicleHtml;
-                    const vehicleHtmlMain = vehicleHtml.replace('<p><strong>Total Earnings:</strong> R ${totalEarnings.toFixed(2)}</p>', '').replace(/<div class="item-actions">[\s\S]*?<\/div>/, `<div class="item-value">R ${totalEarnings.toFixed(2)}</div>`);
+                    // Add status indicator graphic based on vehicle status
+                    let statusIndicator = '';
+                    if (status === 'Active (Allocated)') {
+                        statusIndicator = '<span style="color: var(--success); font-weight: 700;">&#9679;</span>'; // green circle
+                    } else if (status === 'Maintenance') {
+                        statusIndicator = '<span style="color: var(--warning); font-weight: 700;">&#9679;</span>'; // orange circle
+                    } else if (status === 'Inactive (Not Allocated)') {
+                        statusIndicator = '<span style="color: var(--danger); font-weight: 700;">&#9679;</span>'; // red circle
+                    }
+                    const vehicleHtmlWithStatus = vehicleHtml.replace(
+                        `<h4>${vehicle.make || ''} ${vehicle.model || ''}</h4>`,
+                        `<h4>${statusIndicator} ${vehicle.make || ''} ${vehicle.model || ''}</h4>`
+                    );
+                    const vehicleHtmlModal = vehicleHtmlWithStatus;
+                    const vehicleHtmlMain = vehicleHtmlWithStatus.replace('<p><strong>Total Earnings:</strong> R ${totalEarnings.toFixed(2)}</p>', '').replace(/<div class="item-actions">[\s\S]*?<\/div>/, `<div class="item-value">R ${totalEarnings.toFixed(2)}</div>`);
                     fleetList.innerHTML += vehicleHtmlModal;
                     fleetVehicles.innerHTML += vehicleHtmlMain;
                 });

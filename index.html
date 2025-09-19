@@ -843,30 +843,51 @@
         }
 
         // Update fleet overview
-        async function updateFleetOverview() {
-            console.log('updateFleetOverview called with userId:', userId);
-            if (!userId) return;
-            const fleetList = document.getElementById('fleet-list');
-            const fleetVehicles = document.getElementById('fleet-vehicles');
-            fleetList.innerHTML = '';
-            fleetVehicles.innerHTML = '';
-
-            try {
-                const vehiclesSnapshot = await db.ref(`users/owners/${userId}/vehicles`).once('value');
-                const vehicles = vehiclesSnapshot.val() || {};
-                console.log('Fetched vehicles:', vehicles);
-
-                const earningsSnapshot = await db.ref(`users/owners/${userId}/earnings`).once('value');
-                const earnings = earningsSnapshot.val() || {};
-
-                // Calculate total earnings per vehicle
-                const earningsByVehicle = {};
-                Object.values(earnings).forEach(e => {
-                    if (e.vehicle) {
-                        earningsByVehicle[e.vehicle] = (earningsByVehicle[e.vehicle] || 0) + Number(e.amount || 0);
-                    }
-                });
-
+      function updateFleetOverview() {
+  if (!userId) {
+    console.log('No userId, skipping updateFleetOverview');
+    return;
+  }
+  console.log('Fetching vehicles for owner:', userId);
+  const fleetOverview = document.getElementById('fleet-overview');
+  if (!fleetOverview) {
+    console.error('Fleet overview element not found');
+    return;
+  }
+  fleetOverview.innerHTML = '';
+  db.ref(`users/owners/${userId}/vehicles`).on('value', snapshot => {
+    const vehicles = snapshot.val() || {};
+    console.log('Vehicles data:', vehicles);
+    if (snapshot.exists()) {
+      Object.entries(vehicles).forEach(([vehicleId, vehicle]) => {
+        const vehicleHtml = `
+          <div class="vehicle-item" data-vehicle-id="${vehicleId}">
+            <div class="item-info">
+              <div class="item-icon"><i class="fas fa-car"></i></div>
+              <div class="item-details">
+                <h4>${vehicle.make || 'Unknown'} ${vehicle.model || ''} (${vehicle.year || 'N/A'})</h4>
+                <p><strong>Color:</strong> ${vehicle.color || 'N/A'}</p>
+                <p><strong>VIN:</strong> ${vehicle.vin || 'N/A'}</p>
+                <p><strong>Status:</strong> ${vehicle.vehicleStatus || 'inactive'}</p>
+                <p><strong>Registration:</strong> ${vehicle.reg || 'N/A'}</p>
+                <p><strong>License Expiry:</strong> ${vehicle.licenseExpiry || 'N/A'}</p>
+              </div>
+            </div>
+          </div>`;
+        fleetOverview.innerHTML += vehicleHtml;
+      });
+    } else {
+      console.log('No vehicles found for owner:', userId);
+      fleetOverview.innerHTML = '<p>No vehicles available.</p>';
+    }
+  }, error => {
+    console.error('Error loading vehicles:', error.code, error.message, 'UID:', userId);
+    if (error.code === 'PERMISSION_DENIED') {
+      alert('Permission denied. Ensure you are logged in with the correct owner account. UID: ' + userId);
+    }
+    fleetOverview.innerHTML = '<p>Error loading vehicles. Check console for details.</p>';
+  });
+}
                 // Fetch all drivers for name lookup
                 const driversSnapshot = await db.ref(`users/owners/${userId}/drivers`).once('value');
                 const drivers = driversSnapshot.val() || {};

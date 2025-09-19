@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -29,16 +29,19 @@
             --warning: #FF9800;
             --danger: #F44336;
         }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Montserrat', sans-serif;
         }
+
         body {
             background-color: #f5f5f5;
             color: #333;
         }
+
         .container {
             max-width: 480px;
             margin: 0 auto;
@@ -48,6 +51,7 @@
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             overflow-x: hidden;
         }
+
         header {
             background-color: var(--dark-blue);
             color: var(--white);
@@ -59,26 +63,32 @@
             top: 0;
             z-index: 100;
         }
+
         .logo {
             display: flex;
             align-items: center;
         }
+
         .logo img {
             height: 40px;
             margin-right: 10px;
         }
+
         .logo h1 {
             font-size: 22px;
             font-weight: 700;
         }
+
         .header-icons i {
             margin-left: 15px;
             font-size: 20px;
         }
+
         .app-content {
             padding: 20px;
             padding-bottom: 80px;
         }
+
         .section-title {
             font-size: 18px;
             font-weight: 600;
@@ -88,11 +98,13 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .section-title .view-all {
             font-size: 12px;
             color: var(--light-blue);
             font-weight: 500;
         }
+
         .card {
             background-color: var(--white);
             border-radius: 12px;
@@ -101,6 +113,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--gray);
         }
+
         .wallet-balance {
             background: linear-gradient(135deg, var(--dark-blue), #2a3b5c);
             color: var(--white);
@@ -108,22 +121,26 @@
             border-radius: 12px;
             margin-bottom: 20px;
         }
+
         .balance-label {
             font-size: 14px;
             opacity: 0.8;
             margin-bottom: 5px;
         }
+
         .balance-amount {
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 15px;
         }
+
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin-bottom: 20px;
         }
+
         .action-btn {
             background-color: var(--white);
             border: 1px solid var(--gray);
@@ -136,33 +153,40 @@
             flex-direction: column;
             align-items: center;
         }
+
         .action-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
         }
+
         .action-btn i {
             font-size: 24px;
             color: var(--dark-blue);
             margin-bottom: 8px;
         }
+
         .action-btn span {
             font-size: 12px;
             font-weight: 500;
             color: var(--dark-blue);
         }
+
         .list-item {
             display: flex;
             justify-content: space-between;
             padding: 12px 0;
             border-bottom: 1px solid var(--gray);
         }
+
         .list-item:last-child {
             border-bottom: none;
         }
+
         .item-info {
             display: flex;
             align-items: center;
         }
+
         .item-icon {
             width: 40px;
             height: 40px;
@@ -173,21 +197,26 @@
             justify-content: center;
             margin-right: 12px;
         }
+
         .item-icon i {
             color: var(--dark-blue);
         }
+
         .item-details h4 {
             font-size: 14px;
             margin-bottom: 3px;
         }
+
         .item-details p {
             font-size: 12px;
             color: #666;
         }
+
         .item-value {
             font-weight: 600;
             color: var(--dark-blue);
         }
+
         .btn {
             padding: 15px;
             border-radius: 10px;
@@ -202,28 +231,34 @@
             width: 100%;
             margin-bottom: 10px;
         }
+
         .btn-primary {
             background-color: var(--dark-blue);
             color: var(--white);
         }
+
         .btn-secondary {
             background-color: var(--white);
             color: var(--dark-blue);
             border: 1px solid var(--gray);
         }
+
         .btn-success {
             background-color: var(--success);
             color: var(--white);
         }
+
         .btn-danger {
             background-color: var(--danger);
             color: var(--white);
         }
+
         .item-actions {
             display: flex;
             flex-direction: column;
             gap: 5px;
         }
+
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -235,16 +270,19 @@
             padding: 12px 0;
             border-top: 1px solid var(--gray);
         }
+
         .nav-item {
             text-align: center;
             color: #999;
             font-size: 12px;
             cursor: pointer;
         }
+
         .nav-item.active {
             color: var(--dark-blue);
             position: relative;
         }
+
         .nav-item.active::after {
             content: '';
             position: absolute;
@@ -256,10 +294,12 @@
             background-color: var(--dark-blue);
             border-radius: 50%;
         }
+
         .nav-item i {
             font-size: 20px;
             margin-bottom: 5px;
         }
+
         .modal {
             display: none;
             position: fixed;
@@ -272,6 +312,7 @@
             justify-content: center;
             align-items: center;
         }
+
         .modal-content {
             background-color: var(--white);
             border-radius: 12px;
@@ -281,25 +322,30 @@
             max-height: 80vh;
             overflow-y: auto;
         }
+
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
+
         .modal-title {
             font-size: 18px;
             font-weight: 600;
             color: var(--dark-blue);
         }
+
         .modal-close {
             font-size: 24px;
             cursor: pointer;
             color: #999;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .form-label {
             font-size: 14px;
             font-weight: 600;
@@ -307,6 +353,7 @@
             margin-bottom: 5px;
             display: block;
         }
+
         .form-input {
             width: 100%;
             padding: 12px;
@@ -314,6 +361,7 @@
             border-radius: 8px;
             font-size: 16px;
         }
+
         .login-logout-btn {
             background-color: var(--light-blue);
             color: var(--dark-blue);
@@ -342,10 +390,10 @@
                     var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
                     var filteredData = jsonData.filter(row => row.some(filledCell));
                     var headerRowIndex = filteredData.findIndex((row, index) =>
-                      row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                        row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
                     );
                     if (headerRowIndex === -1 || headerRowIndex > 25) {
-                      headerRowIndex = 0;
+                        headerRowIndex = 0;
                     }
                     var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
                     csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
@@ -359,6 +407,7 @@
         }
     </script>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -370,7 +419,8 @@
                 <i class="fas fa-bell"></i>
                 <i class="fas fa-user"></i>
                 <button class="login-logout-btn" id="login-logout-btn">Login</button>
-                <div id="user-name" style="font-size: 12px; color: var(--white); text-align: center; margin-top: 5px;"></div>
+                <div id="user-name" style="font-size: 12px; color: var(--white); text-align: center; margin-top: 5px;">
+                </div>
             </div>
         </header>
         <div class="app-content" id="owner-app">
@@ -397,9 +447,11 @@
                     <span>Withdraw</span>
                 </div>
             </div>
-            <div class="section-title">Fleet Overview <span class="view-all" id="fleet-overview-btn">View All</span></div>
+            <div class="section-title">Fleet Overview <span class="view-all" id="fleet-overview-btn">View All</span>
+            </div>
             <div class="card" id="fleet-vehicles"></div>
-            <div class="section-title">Recent Earnings <span class="view-all" id="earnings-history-btn">View All</span></div>
+            <div class="section-title">Recent Earnings <span class="view-all" id="earnings-history-btn">View All</span>
+            </div>
             <div class="card" id="recent-earnings"></div>
         </div>
         <div class="bottom-nav">
@@ -465,7 +517,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Year</label>
-                    <input type="number" class="form-input" id="vehicle-year" placeholder="Enter year" min="1900" max="2100">
+                    <input type="number" class="form-input" id="vehicle-year" placeholder="Enter year" min="1900"
+                        max="2100">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Color</label>
@@ -506,7 +559,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Year</label>
-                    <input type="number" class="form-input" id="edit-vehicle-year" placeholder="Enter year" min="1900" max="2100">
+                    <input type="number" class="form-input" id="edit-vehicle-year" placeholder="Enter year" min="1900"
+                        max="2100">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Color</label>
@@ -556,7 +610,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Description</label>
-                    <textarea class="form-input" id="maintenance-description" placeholder="Enter description"></textarea>
+                    <textarea class="form-input" id="maintenance-description"
+                        placeholder="Enter description"></textarea>
                 </div>
                 <button class="btn btn-primary" id="confirm-maintenance">Log Maintenance</button>
             </div>
@@ -666,7 +721,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-input" id="edit-driver-email" placeholder="Enter driver email" readonly>
+                    <input type="email" class="form-input" id="edit-driver-email" placeholder="Enter driver email"
+                        readonly>
                 </div>
                 <button class="btn btn-primary" id="confirm-edit-driver">Update Driver</button>
             </div>
@@ -763,8 +819,8 @@
 
             const now = new Date();
             const startDate = period === 'daily' ? new Date(now.setHours(0, 0, 0, 0)) :
-                             period === 'weekly' ? new Date(now.setDate(now.getDate() - 7)) :
-                             new Date(now.setDate(now.getDate() - 30));
+                period === 'weekly' ? new Date(now.setDate(now.getDate() - 7)) :
+                    new Date(now.setDate(now.getDate() - 30));
 
             db.ref(`users/owners/${userId}/earnings`).once('value', snapshot => {
                 const earnings = snapshot.val() || [];
@@ -896,7 +952,7 @@
                     const driverName = vehicle.driverId ? driverNames[vehicle.driverId] || 'Unassigned' : 'Unassigned';
                     const totalEarnings = earningsByVehicle[vehicle.reg] || 0;
 
-                const vehicleHtml = `
+                    const vehicleHtml = `
                         <div class="list-item" data-vehicle-index="${index}">
                             <div class="item-info">
                                 <div class="item-icon"><i class="fas fa-shuttle-van"></i></div>
@@ -913,8 +969,10 @@
                                 <button class="btn btn-danger remove-vehicle-btn" data-vehicle-index="${index}">Remove</button>
                             </div>
                         </div>`;
-                    fleetList.innerHTML += vehicleHtml;
-                    fleetVehicles.innerHTML += vehicleHtml.replace('<div class="item-actions">', `<div class="item-value">R ${totalEarnings.toFixed(2)}</div>`);
+                    const vehicleHtmlModal = vehicleHtml;
+                    const vehicleHtmlMain = vehicleHtml.replace('<p><strong>Total Earnings:</strong> R ${totalEarnings.toFixed(2)}</p>', '').replace(/<div class="item-actions">[\s\S]*?<\/div>/, `<div class="item-value">R ${totalEarnings.toFixed(2)}</div>`);
+                    fleetList.innerHTML += vehicleHtmlModal;
+                    fleetVehicles.innerHTML += vehicleHtmlMain;
                 });
 
                 updateMaintenanceDropdown();
@@ -1030,38 +1088,38 @@
 
         // Update driver management
         function updateDriverManagement() {
-  if (!userId) {
-    console.log('No userId, skipping updateDriverManagement');
-    return;
-  }
-  console.log('Fetching drivers for owner:', userId);
-  const driverList = document.getElementById('driver-list');
-  const driverSelect = document.getElementById('manage-driver-select');
-  driverList.innerHTML = '';
-  driverSelect.innerHTML = '';
-  db.ref(`users/owners/${userId}/drivers`).on('value', snapshot => {
-    const drivers = snapshot.val() || {};
-    console.log('Drivers data:', drivers);
-    Object.entries(drivers).forEach(([index, driver]) => {
-      db.ref(`users/drivers/${driver.driverId}`).once('value', driverSnap => {
-        const driverData = driverSnap.val() || {};
-        console.log(`Driver ${driver.driverId} data:`, driverData);
-        let status = driverData.onDuty ? 'On Duty' : 'Off Duty';
-        if (driverData.onDuty && !driver.vehicleId) {
-          status = 'Off Duty (No Vehicle)';
-        }
-        const statusColor = driverData.onDuty && driver.vehicleId ? 'var(--success)' : 'var(--danger)';
-        const route = driverData.currentRoute || 'N/A';
-        let earningsToday = 0;
-        const today = new Date().toISOString().slice(0, 10);
-        if (driverData.trips) {
-          Object.values(driverData.trips).forEach(trip => {
-            if (trip.timestamp && trip.timestamp.slice(0, 10) === today) {
-              earningsToday += Number(trip.amount) || 0;
+            if (!userId) {
+                console.log('No userId, skipping updateDriverManagement');
+                return;
             }
-          });
-        }
-        const driverHtml = `
+            console.log('Fetching drivers for owner:', userId);
+            const driverList = document.getElementById('driver-list');
+            const driverSelect = document.getElementById('manage-driver-select');
+            driverList.innerHTML = '';
+            driverSelect.innerHTML = '';
+            db.ref(`users/owners/${userId}/drivers`).on('value', snapshot => {
+                const drivers = snapshot.val() || {};
+                console.log('Drivers data:', drivers);
+                Object.entries(drivers).forEach(([index, driver]) => {
+                    db.ref(`users/drivers/${driver.driverId}`).once('value', driverSnap => {
+                        const driverData = driverSnap.val() || {};
+                        console.log(`Driver ${driver.driverId} data:`, driverData);
+                        let status = driverData.onDuty ? 'On Duty' : 'Off Duty';
+                        if (driverData.onDuty && !driver.vehicleId) {
+                            status = 'Off Duty (No Vehicle)';
+                        }
+                        const statusColor = driverData.onDuty && driver.vehicleId ? 'var(--success)' : 'var(--danger)';
+                        const route = driverData.currentRoute || 'N/A';
+                        let earningsToday = 0;
+                        const today = new Date().toISOString().slice(0, 10);
+                        if (driverData.trips) {
+                            Object.values(driverData.trips).forEach(trip => {
+                                if (trip.timestamp && trip.timestamp.slice(0, 10) === today) {
+                                    earningsToday += Number(trip.amount) || 0;
+                                }
+                            });
+                        }
+                        const driverHtml = `
           <div class="list-item" data-driver-index="${index}">
             <div class="item-info">
               <div class="item-icon"><i class="fas fa-user"></i></div>
@@ -1078,14 +1136,14 @@
               <button class="btn btn-danger remove-driver-btn" data-driver-index="${index}">Remove</button>
             </div>
           </div>`;
-        driverList.innerHTML += driverHtml;
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = driverData.name || driver.name || 'Unknown';
-        driverSelect.appendChild(option);
-      }, error => {
-        console.error(`Error fetching driver ${driver.driverId}:`, error.message);
-        const driverHtml = `
+                        driverList.innerHTML += driverHtml;
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = driverData.name || driver.name || 'Unknown';
+                        driverSelect.appendChild(option);
+                    }, error => {
+                        console.error(`Error fetching driver ${driver.driverId}:`, error.message);
+                        const driverHtml = `
           <div class="list-item" data-driver-index="${index}">
             <div class="item-info">
               <div class="item-icon"><i class="fas fa-user"></i></div>
@@ -1100,67 +1158,67 @@
               <button class="btn btn-danger remove-driver-btn" data-driver-index="${index}">Remove</button>
             </div>
           </div>`;
-        driverList.innerHTML += driverHtml;
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = driver.name || 'Unknown';
-        driverSelect.appendChild(option);
-      });
-    });
-
-    updateDriverBehavior();
-
-    const observer = new MutationObserver(() => {
-      document.querySelectorAll('.edit-driver-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const driverIndex = btn.getAttribute('data-driver-index');
-          db.ref(`users/owners/${userId}/drivers/${driverIndex}`).once('value', snapshot => {
-            const driver = snapshot.val();
-            if (driver) {
-              document.getElementById('edit-driver-name').value = driver.name || '';
-              document.getElementById('edit-driver-email').value = driver.email || '';
-              document.getElementById('confirm-edit-driver').setAttribute('data-driver-index', driverIndex);
-              openModal('edit-driver-modal');
-            }
-          }).catch(error => {
-            alert('Error loading driver data: ' + error.message);
-          });
-        });
-      });
-
-      document.querySelectorAll('.remove-driver-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const driverIndex = btn.getAttribute('data-driver-index');
-          if (confirm('Are you sure you want to remove this driver from your fleet?')) {
-            db.ref(`users/owners/${userId}/drivers/${driverIndex}`).once('value', snapshot => {
-              const driver = snapshot.val();
-              if (driver.vehicleId) {
-                db.ref(`users/owners/${userId}/vehicles/${driver.vehicleId}`).update({
-                  driverId: ''
-                }).catch(error => {
-                  alert('Error deallocating vehicle: ' + error.message);
+                        driverList.innerHTML += driverHtml;
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = driver.name || 'Unknown';
+                        driverSelect.appendChild(option);
+                    });
                 });
-              }
-              db.ref(`users/owners/${userId}/drivers/${driverIndex}`).remove()
-                .then(() => {
-                  updateDriverManagement();
-                  alert('Driver removed successfully!');
-                })
-                .catch(error => {
-                  alert('Error removing driver: ' + error.message);
+
+                updateDriverBehavior();
+
+                const observer = new MutationObserver(() => {
+                    document.querySelectorAll('.edit-driver-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const driverIndex = btn.getAttribute('data-driver-index');
+                            db.ref(`users/owners/${userId}/drivers/${driverIndex}`).once('value', snapshot => {
+                                const driver = snapshot.val();
+                                if (driver) {
+                                    document.getElementById('edit-driver-name').value = driver.name || '';
+                                    document.getElementById('edit-driver-email').value = driver.email || '';
+                                    document.getElementById('confirm-edit-driver').setAttribute('data-driver-index', driverIndex);
+                                    openModal('edit-driver-modal');
+                                }
+                            }).catch(error => {
+                                alert('Error loading driver data: ' + error.message);
+                            });
+                        });
+                    });
+
+                    document.querySelectorAll('.remove-driver-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const driverIndex = btn.getAttribute('data-driver-index');
+                            if (confirm('Are you sure you want to remove this driver from your fleet?')) {
+                                db.ref(`users/owners/${userId}/drivers/${driverIndex}`).once('value', snapshot => {
+                                    const driver = snapshot.val();
+                                    if (driver.vehicleId) {
+                                        db.ref(`users/owners/${userId}/vehicles/${driver.vehicleId}`).update({
+                                            driverId: ''
+                                        }).catch(error => {
+                                            alert('Error deallocating vehicle: ' + error.message);
+                                        });
+                                    }
+                                    db.ref(`users/owners/${userId}/drivers/${driverIndex}`).remove()
+                                        .then(() => {
+                                            updateDriverManagement();
+                                            alert('Driver removed successfully!');
+                                        })
+                                        .catch(error => {
+                                            alert('Error removing driver: ' + error.message);
+                                        });
+                                });
+                            }
+                        });
+                    });
+                    observer.disconnect();
                 });
+                observer.observe(driverList, { childList: true, subtree: true });
+            }, error => {
+                alert('Error loading drivers: ' + error.message);
+                console.error('Error loading drivers:', error);
             });
-          }
-        });
-      });
-      observer.disconnect();
-    });
-    observer.observe(driverList, { childList: true, subtree: true });
-  }, error => {
-    alert('Error loading drivers: ' + error.message);
-    console.error('Error loading drivers:', error);
-  });
-}
+        }
         // Update driver behavior
         function updateDriverBehavior() {
             const driverSelect = document.getElementById('manage-driver-select');
@@ -1486,58 +1544,58 @@
             const driverKey = document.getElementById('allocate-driver-select').value;
             if (vehicleKey && driverKey) {
                 db.ref(`users/owners/${userId}/vehicles/${vehicleKey}/driverId`).set(driverKey)
-                .then(() => {
-                    db.ref(`users/owners/${userId}/drivers/${driverKey}/vehicleId`).set(vehicleKey);
-                    closeModal('allocate-vehicle-modal');
-                    updateFleetOverview();
-                    updateDriverManagement();
-                    alert('Vehicle allocated to driver!');
-                }).catch(error => {
-                    alert('Error allocating vehicle: ' + error.message);
-                });
+                    .then(() => {
+                        db.ref(`users/owners/${userId}/drivers/${driverKey}/vehicleId`).set(vehicleKey);
+                        closeModal('allocate-vehicle-modal');
+                        updateFleetOverview();
+                        updateDriverManagement();
+                        alert('Vehicle allocated to driver!');
+                    }).catch(error => {
+                        alert('Error allocating vehicle: ' + error.message);
+                    });
             } else {
                 alert('Please select both vehicle and driver');
             }
         });
 
         // Authentication
-       auth.onAuthStateChanged(user => {
-  console.log('Auth state changed:', user ? `UID: ${user.uid}, Email: ${user.email}` : 'No user');
-  if (user) {
-    isLoggedIn = true;
-    userId = user.uid;
-    console.log('Set userId:', userId);
-    db.ref(`users/owners/${userId}`).once('value', snapshot => {
-      const data = snapshot.val();
-      console.log('Owner data:', data);
-      walletBalance = data?.walletBalance || 0;
-      document.getElementById('wallet-balance').textContent = `R ${Number(walletBalance).toFixed(2)}`;
-      document.getElementById('user-name').textContent = data?.name || user.displayName || 'User';
-      if (!data) {
-        console.log('Creating new owner record for UID:', userId);
-        db.ref(`users/owners/${userId}`).set({
-          email: user.email,
-          name: document.getElementById('signup-name').value || 'Owner',
-          walletBalance: 0,
-          vehicles: [],
-          drivers: []
+        auth.onAuthStateChanged(user => {
+            console.log('Auth state changed:', user ? `UID: ${user.uid}, Email: ${user.email}` : 'No user');
+            if (user) {
+                isLoggedIn = true;
+                userId = user.uid;
+                console.log('Set userId:', userId);
+                db.ref(`users/owners/${userId}`).once('value', snapshot => {
+                    const data = snapshot.val();
+                    console.log('Owner data:', data);
+                    walletBalance = data?.walletBalance || 0;
+                    document.getElementById('wallet-balance').textContent = `R ${Number(walletBalance).toFixed(2)}`;
+                    document.getElementById('user-name').textContent = data?.name || user.displayName || 'User';
+                    if (!data) {
+                        console.log('Creating new owner record for UID:', userId);
+                        db.ref(`users/owners/${userId}`).set({
+                            email: user.email,
+                            name: document.getElementById('signup-name').value || 'Owner',
+                            walletBalance: 0,
+                            vehicles: [],
+                            drivers: []
+                        });
+                    }
+                    updateEarningsHistory();
+                    updateFleetOverview();
+                    updateDriverManagement();
+                }).catch(error => {
+                    console.error('Error fetching owner data:', error.message);
+                });
+            } else {
+                isLoggedIn = false;
+                userId = null;
+                walletBalance = 0;
+                document.getElementById('wallet-balance').textContent = 'R 0.00';
+                document.getElementById('login-logout-btn').textContent = 'Login';
+                document.getElementById('user-name').textContent = '';
+            }
         });
-      }
-      updateEarningsHistory();
-      updateFleetOverview();
-      updateDriverManagement();
-    }).catch(error => {
-      console.error('Error fetching owner data:', error.message);
-    });
-  } else {
-    isLoggedIn = false;
-    userId = null;
-    walletBalance = 0;
-    document.getElementById('wallet-balance').textContent = 'R 0.00';
-    document.getElementById('login-logout-btn').textContent = 'Login';
-    document.getElementById('user-name').textContent = '';
-  }
-});
 
         document.getElementById('login-logout-btn').addEventListener('click', () => {
             if (isLoggedIn) {
@@ -1620,18 +1678,19 @@
         });
 
         // Initialize application
-        window.onload = function() {
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      console.log('Initializing app for user:', user.uid);
-      updateEarningsHistory();
-      updateFleetOverview();
-      updateDriverManagement();
-    } else {
-      console.log('No user authenticated, skipping initialization');
-    }
-  });
-};
+        window.onload = function () {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    console.log('Initializing app for user:', user.uid);
+                    updateEarningsHistory();
+                    updateFleetOverview();
+                    updateDriverManagement();
+                } else {
+                    console.log('No user authenticated, skipping initialization');
+                }
+            });
+        };
     </script>
 </body>
+
 </html>

@@ -972,11 +972,11 @@
                     // Add status indicator graphic based on vehicle status
                     let statusIndicator = '';
                     if (status === 'Active (Allocated)') {
-                        statusIndicator = '<span style="color: var(--success); font-weight: 700;">&#9679;</span>'; // green circle
+                        statusIndicator = '<span style="color: var(--success); font-weight: 700; font-size: 24px;">&#9679;</span>'; // green circle bigger
                     } else if (status === 'Maintenance') {
-                        statusIndicator = '<span style="color: var(--warning); font-weight: 700;">&#9679;</span>'; // orange circle
+                        statusIndicator = '<span style="color: var(--warning); font-weight: 700; font-size: 24px;">&#9679;</span>'; // orange circle bigger
                     } else if (status === 'Inactive (Not Allocated)') {
-                        statusIndicator = '<span style="color: var(--danger); font-weight: 700;">&#9679;</span>'; // red circle
+                        statusIndicator = '<span style="color: var(--danger); font-weight: 700; font-size: 24px;">&#9679;</span>'; // red circle bigger
                     }
                     const vehicleHtmlWithStatus = vehicleHtml.replace(
                         `<h4>${vehicle.make || ''} ${vehicle.model || ''}</h4>`,

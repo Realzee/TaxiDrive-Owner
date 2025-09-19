@@ -1578,6 +1578,7 @@
                 isLoggedIn = true;
                 userId = user.uid;
                 console.log('Set userId:', userId);
+                document.getElementById('login-logout-btn').textContent = 'Logout';
                 db.ref(`users/owners/${userId}`).once('value', snapshot => {
                     const data = snapshot.val();
                     console.log('Owner data:', data);

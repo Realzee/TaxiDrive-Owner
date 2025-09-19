@@ -19,6 +19,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+
+        .vehicle-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.vehicle-item .item-icon {
+  margin-right: 10px;
+}
+
+.vehicle-item .item-details h4 {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.vehicle-item .item-details p {
+  margin: 2px 0;
+  color: #666;
+}
+
+#vehicle-management-modal .modal-content {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+        
         :root {
             --dark-blue: #1A2A44;
             --light-blue: #A3C9E6;
@@ -259,7 +286,7 @@
             font-size: 20px;
             margin-bottom: 5px;
         }
-        .modal {
+        . {
             display: none;
             position: fixed;
             top: 0;
@@ -271,7 +298,7 @@
             justify-content: center;
             align-items: center;
         }
-        .modal-content {
+        .-content {
             background-color: var(--white);
             border-radius: 12px;
             padding: 20px;
@@ -280,18 +307,18 @@
             max-height: 80vh;
             overflow-y: auto;
         }
-        .modal-header {
+        .-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
-        .modal-title {
+        .-title {
             font-size: 18px;
             font-weight: 600;
             color: var(--dark-blue);
         }
-        .modal-close {
+        .-close {
             font-size: 24px;
             cursor: pointer;
             color: #999;
@@ -1228,6 +1255,50 @@
         }
 
         // Modal functionality
+<!-- Vehicle Management Modal -->
+<div id="vehicle-management-modal" class="modal">
+  <div class="modal-content">
+    <h2>Vehicle Management</h2>
+    <form id="vehicle-management-form">
+      <input type="hidden" id="vehicle-id" value="">
+      <label for="vehicle-make">Make</label>
+      <input type="text" id="vehicle-make" placeholder="Enter vehicle make" required maxlength="50">
+
+      <label for="vehicle-model">Model</label>
+      <input type="text" id="vehicle-model" placeholder="Enter vehicle model" required maxlength="50">
+
+      <label for="vehicle-year">Year</label>
+      <input type="number" id="vehicle-year" placeholder="Enter year" required min="1900" max="2100">
+
+      <label for="vehicle-color">Color</label>
+      <input type="text" id="vehicle-color" placeholder="Enter color" required maxlength="50">
+
+      <label for="vehicle-vin">VIN Number</label>
+      <input type="text" id="vehicle-vin" placeholder="Enter VIN number" required maxlength="17">
+
+      <label for="vehicle-engine">Engine Number</label>
+      <input type="text" id="vehicle-engine" placeholder="Enter engine number" required maxlength="50">
+
+      <label for="vehicle-reg">Registration Number</label>
+      <input type="text" id="vehicle-reg" placeholder="Enter registration number" required maxlength="20">
+
+      <label for="vehicle-license-expiry">License Expiry Date</label>
+      <input type="text" id="vehicle-license-expiry" placeholder="mm/dd/yyyy" required pattern="(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\d{4}">
+
+      <label for="vehicle-status">Status</label>
+      <select id="vehicle-status">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="maintenance">Maintenance</option>
+      </select>
+
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+      <button type="button" class="btn btn-danger" id="remove-vehicle-btn">Remove Vehicle</button>
+      <button type="button" class="btn btn-secondary" onclick="closeModal('vehicle-management-modal')">Cancel</button>
+    </form>
+  </div>
+</div>
+        
         const modals = document.querySelectorAll('.modal');
         const closeModalButtons = document.querySelectorAll('.modal-close');
 
@@ -1252,6 +1323,77 @@
                 }
             });
         });
+
+        // Open vehicle management modal (e.g., from fleet overview click)
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.vehicle-item')) {
+    const vehicleId = e.target.closest('.vehicle-item').getAttribute('data-vehicle-id');
+    if (vehicleId) {
+      openModal('vehicle-management-modal');
+      db.ref(`users/owners/${userId}/vehicles/${vehicleId}`).once('value', snapshot => {
+        const vehicle = snapshot.val() || {};
+        document.getElementById('vehicle-id').value = vehicleId;
+        document.getElementById('vehicle-make').value = vehicle.make || '';
+        document.getElementById('vehicle-model').value = vehicle.model || '';
+        document.getElementById('vehicle-year').value = vehicle.year || '';
+        document.getElementById('vehicle-color').value = vehicle.color || '';
+        document.getElementById('vehicle-vin').value = vehicle.vin || '';
+        document.getElementById('vehicle-engine').value = vehicle.engine || '';
+        document.getElementById('vehicle-reg').value = vehicle.reg || '';
+        document.getElementById('vehicle-license-expiry').value = vehicle.licenseExpiry || '';
+        document.getElementById('vehicle-status').value = vehicle.vehicleStatus || 'inactive';
+      }).catch(error => {
+        console.error('Error fetching vehicle data:', error.message);
+      });
+    }
+  }
+});
+
+// Handle save changes
+document.getElementById('vehicle-management-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const vehicleId = document.getElementById('vehicle-id').value;
+  const vehicleData = {
+    make: document.getElementById('vehicle-make').value.trim(),
+    model: document.getElementById('vehicle-model').value.trim(),
+    year: parseInt(document.getElementById('vehicle-year').value),
+    color: document.getElementById('vehicle-color').value.trim(),
+    vin: document.getElementById('vehicle-vin').value.trim(),
+    engine: document.getElementById('vehicle-engine').value.trim(),
+    reg: document.getElementById('vehicle-reg').value.trim(),
+    licenseExpiry: document.getElementById('vehicle-license-expiry').value.trim(),
+    vehicleStatus: document.getElementById('vehicle-status').value
+  };
+  db.ref(`users/owners/${userId}/vehicles/${vehicleId}`).update(vehicleData)
+    .then(() => {
+      console.log('Vehicle updated successfully:', vehicleId);
+      closeModal('vehicle-management-modal');
+      updateFleetOverview();
+      alert('Vehicle updated successfully!');
+    })
+    .catch(error => {
+      console.error('Error updating vehicle:', error.message);
+      alert('Error updating vehicle: ' + error.message);
+    });
+});
+
+// Handle remove vehicle
+document.getElementById('remove-vehicle-btn').addEventListener('click', () => {
+  if (confirm('Are you sure you want to remove this vehicle?')) {
+    const vehicleId = document.getElementById('vehicle-id').value;
+    db.ref(`users/owners/${userId}/vehicles/${vehicleId}`).remove()
+      .then(() => {
+        console.log('Vehicle removed successfully:', vehicleId);
+        closeModal('vehicle-management-modal');
+        updateFleetOverview();
+        alert('Vehicle removed successfully!');
+      })
+      .catch(error => {
+        console.error('Error removing vehicle:', error.message);
+        alert('Error removing vehicle: ' + error.message);
+      });
+  }
+});
 
         // Bottom navigation
         document.querySelectorAll('.nav-item').forEach(item => {

@@ -1682,7 +1682,7 @@ document.getElementById('remove-vehicle-btn').addEventListener('click', () => {
         });
         return;
       }
-      updateDriverManagement().catch(error => console.error('Update failed:', error));
+      updateDriverManagement().catch(error => console.error('Update failed:', error)); // Changed line
       updateEarningsHistory();
       updateFleetOverview();
     }).catch(error => {
